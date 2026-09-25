@@ -1,16 +1,56 @@
-# Jaryan multi-file preview
+# جریان | Jaryan
 
-This build keeps the rollback baseline jaryan 0.0.1 untouched.
+جریان یک آرشیو سبک و فارسی برای جست‌وجو، خواندن و نگه‌داری شعر است. این نسخهٔ اولیه به‌صورت یک وب‌اپ استاتیک ساخته شده و برای انتشار روی GitHub Pages یا هر میزبان HTTPS مناسب است.
 
-## Runtime files
+## امکانات
 
-- index.html: lightweight document shell
-- styles.css: all visual styles
-- app.js: application logic and lazy poem loading
-- data/catalog.json: poet and book catalogue
-- data/poem-index.json: lightweight poem index for archive views
-- data/search.bin: compressed full-text search index loaded on first search
-- data/poems/*.bin: gzip-compressed book shards loaded on demand
-- assets/fonts/*: local fonts
+- جست‌وجو در نام شاعر، مجموعه، عنوان و متن کامل شعر
+- نرمال‌سازی حروف فارسی، فاصلهٔ مجازی، اعراب و نشانه‌گذاری در جست‌وجو
+- بارگذاری تنبل متن کامل مجموعه‌ها و کش‌کردن هر مجموعه پس از اولین خواندن
+- ذخیرهٔ شعر، شاعر، بیت و یادداشت در `localStorage`
+- تم روشن، کاغذی، تیره و هماهنگ با تنظیمات سیستم
+- تنظیم اندازهٔ نوشته از ۱۰۰٪ تا ۴۰۰٪ بدون شکستن متن بیت‌ها
+- نصب به‌عنوان وب‌اپ با نام و لوگوی «جریان» از طریق Add to Home Screen
+- رابط واکنش‌گرا برای دسکتاپ و موبایل، بدون زوم ناخواسته در ورودی‌ها
 
-Serve the folder over a static HTTPS host. The .bin files must be served without a Content-Encoding: gzip header because the app decompresses them in the browser.
+## ساختار داده
+
+```text
+index.html                 پوستهٔ سبک صفحه
+app.js                     منطق رابط، مسیریابی و رویدادها
+styles.css                 طراحی واکنش‌گرا و تم‌ها
+manifest.webmanifest       مشخصات نصب وب‌اپ
+service-worker.js          کش پوسته و داده‌های پرتکرار
+data/catalog.json          فهرست شاعران و مجموعه‌ها
+data/poem-index.json       فهرست سبک عنوان‌ها و تعداد بیت‌ها
+data/search.bin            نمایهٔ فشرده و ازپیش‌نرمال‌شدهٔ جست‌وجوی متن کامل
+data/poems/*.bin           متن فشردهٔ مجموعه‌های معمولی
+data/poems/chunks/*.bin    قطعه‌های کوچک مجموعه‌های حجیم
+assets/icon.svg            لوگوی جریان
+```
+
+## اجرای محلی
+
+فایل‌ها باید از طریق HTTP یا HTTPS سرو شوند؛ بازکردن مستقیم `index.html` با `file://` برای `fetch` داده‌ها و Service Worker مناسب نیست.
+
+```bash
+python3 -m http.server 8080
+```
+
+سپس آدرس `http://localhost:8080` را باز کنید.
+
+## انتشار روی GitHub Pages
+
+1. محتوای پوشهٔ پروژه را در شاخهٔ انتشار قرار دهید.
+2. در تنظیمات مخزن، بخش **Pages** را روی شاخه و پوشهٔ پروژه فعال کنید.
+3. مطمئن شوید سایت با HTTPS باز می‌شود تا نصب وب‌اپ و Service Worker فعال باشند.
+
+فایل‌های `.bin` باید بدون هدر `Content-Encoding: gzip` سرو شوند؛ برنامه فشرده‌سازی را در مرورگر انجام می‌دهد.
+
+## نکات معماری
+
+برنامه بدون فریم‌ورک و با یک رندرکنندهٔ کوچک مبتنی بر مسیر ساخته شده است. دادهٔ سبک عنوان‌ها در شروع بارگذاری می‌شود، دادهٔ متن کامل جست‌وجو فقط بعد از اولین جست‌وجو خوانده می‌شود و متن مجموعه فقط هنگام ورود به شعر مربوط دریافت می‌شود. دو مجموعهٔ حجیم نیز به قطعه‌های ۲۵۶تایی تقسیم شده‌اند تا بازشدن یک شعر نیازمند دریافت کل مجموعه نباشد. رویدادهای ورودی به‌صورت delegation و با یک listener مدیریت می‌شوند تا تایپ باعث از دست رفتن فوکوس یا رندرهای تکراری نشود.
+
+## مجوز و منبع داده
+
+پیش از انتشار عمومی، مجوز استفاده و منبع اشعار و فونت‌های قرارگرفته در پوشهٔ `assets` را در این بخش ثبت کنید.
