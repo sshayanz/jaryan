@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jaryan-0.0.2-shell';
+const CACHE_NAME = 'jaryan-0.1.0b7-shell';
 const SHELL = [
   './',
   './index.html',
@@ -8,6 +8,9 @@ const SHELL = [
   './assets/icon.svg',
   './assets/fonts/Ravi-VF.ttf',
   './assets/fonts/Yekan.woff2',
+  './assets/fonts/IranNastaliq.ttf',
+  './assets/fonts/ShekastehNastaliq.ttf',
+  './assets/fonts/MirEmad.ttf',
   './data/catalog.json',
   './data/poem-index.json'
 ];
