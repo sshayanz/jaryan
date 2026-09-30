@@ -1,0 +1,20 @@
+{
+  "name": "Jaryan | Persian poetry archive",
+  "short_name": "Jaryan",
+  "description": "A calm archive for Persian poetry and Iranian poets",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f6f3",
+  "theme_color": "#f6f6f3",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
