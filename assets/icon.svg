@@ -1,9 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="118" fill="#20231f"/>
-  <g fill="none" stroke="#f6f6f3" stroke-width="22" stroke-linecap="round">
+  <style>
+    :root { --icon-bg: #f6f6f3; --icon-fg: #20231f; --icon-accent: #b78a2d; }
+    @media (prefers-color-scheme: dark) {
+      :root { --icon-bg: #0d121b; --icon-fg: #f8fbff; --icon-accent: #ffd166; }
+    }
+  </style>
+  <rect width="512" height="512" rx="118" fill="var(--icon-bg)"/>
+  <g fill="none" stroke="var(--icon-fg)" stroke-width="22" stroke-linecap="round">
     <path d="M92 170c76-72 122 42 190-10s94 14 138-10"/>
     <path d="M92 256c76-72 122 42 190-10s94 14 138-10"/>
     <path d="M92 342c76-72 122 42 190-10s94 14 138-10"/>
   </g>
-  <circle cx="414" cy="132" r="18" fill="#b78a2d"/>
+  <circle cx="414" cy="132" r="18" fill="var(--icon-accent)"/>
 </svg>

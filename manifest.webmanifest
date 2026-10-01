@@ -1,7 +1,7 @@
 {
-  "name": "جریان | آرشیو شعر فارسی",
-  "short_name": "جریان",
-  "description": "آرشیو شعر فارسی؛ بخوان و فال بگیر",
+  "name": "Jaryan | Persian poetry archive",
+  "short_name": "Jaryan",
+  "description": "A calm archive for Persian poetry and Iranian poets",
   "lang": "fa",
   "dir": "rtl",
   "start_url": "./",

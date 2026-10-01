@@ -1,9 +1,10 @@
-const CACHE_NAME = 'jaryan-0.1.0b7-shell';
+const CACHE_NAME = 'jaryan-0.6.5-shell';
 const SHELL = [
   './',
   './index.html',
-  './styles.css',
-  './app.js',
+  './styles.css?v=0.6.5',
+  './app.js?v=0.6.5',
+  './search-worker.js',
   './manifest.webmanifest',
   './assets/icon.svg',
   './assets/fonts/Ravi-VF.ttf',
@@ -20,20 +21,45 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(
-    keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-  )).then(() => self.clients.claim()));
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    const current = await caches.open(CACHE_NAME);
+    const previous = keys.filter(key => key.startsWith('jaryan-') && key !== CACHE_NAME);
+    for (const key of previous) {
+      const oldCache = await caches.open(key);
+      for (const request of await oldCache.keys()) {
+        if (await current.match(request)) continue;
+        const response = await oldCache.match(request);
+        if (response) await current.put(request, response);
+      }
+    }
+    await Promise.all(previous.map(key => caches.delete(key)));
+    await self.clients.claim();
+  })());
+});
+
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data?.type === 'DELETE_CACHE_URL') {
+    let url;
+    try { url = new URL(event.data.url); } catch { return; }
+    if (url.origin !== self.location.origin) return;
+    event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.delete(url.href)));
+  }
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-  event.respondWith(caches.match(event.request).then(cached => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin || url.pathname.includes('/api/')) return;
+  event.respondWith((async () => {
+    const cached = await caches.match(request);
     if (cached) return cached;
-    return fetch(event.request).then(response => {
-      if (!response || response.status !== 200 || response.type === 'opaque') return response;
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-      return response;
-    });
-  }));
+    const response = await fetch(request);
+    if (response?.status === 200 && response.type !== 'opaque') {
+      event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone())));
+    }
+    return response;
+  })());
 });

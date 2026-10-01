@@ -1,34 +1,55 @@
 # Jaryan | Persian Poetry Archive
 
-**Version:** `0.1.0b7`  
-**Languages:** English (default) · [فارسی](README.fa.md)
+**Version:** `0.6.5`  
+**Languages:** English · [فارسی](README.fa.md)
 
-Jaryan is a lightweight web app for discovering, searching, reading and saving Persian poetry. It is designed for calm reading on desktop and mobile, with a static-first shell, an optional Node/SQLite backend and no framework runtime.
+Jaryan is a lightweight, bilingual archive for discovering, searching, reading and saving Persian poetry. The app works as a static site; an optional Node.js server adds consent-based member sync, feedback collection, aggregate poem views and share counts, and a separate server admin panel.
 
-## What It Includes
+## Features
 
-- Search across real couplets with Persian normalization, delayed loading and highlighted matches.
-- Browse poets, collections and poem sections through hash-based routes.
-- Read poems with copy, share, save, per-couplet likes and local notes.
-- Focus mode for bit-by-bit reading with keyboard and on-screen navigation.
-- Glass Fab Morph controls for sharing, copying, focus mode and text size, with a three-level app scale.
-- The mobile dock is mounted outside the scaled app shell so archive/search navigation cannot pull it into the page or lock the layout.
-- Refined route spacing, larger home actions, glass Fab controls and focus-mode toolbar.
-- Focus reading controls now use a compact close button, larger active verses and four-button poem toolbars.
-- Poet cards offer a poet fortune action; collection titles and long couplets remain readable at larger sizes.
-- Settings support LTR English with three English font stacks, Persian-only font choices, and system theme by default.
-- App and poem typography are separate; poem choices include Ravi, Iran Nastaliq, Shekasteh Nastaliq and Mir Emad styles. The three Nastaliq-style fonts are bundled under `assets/fonts`.
-- The theme list is Dark mode, Light mode, Dark, Light, Paper and System; System resolves only to the high-contrast Dark mode or Light mode palettes.
-- Random poem actions use the shine icon and a restrained animated shine effect.
-- Search, account and feedback text fields include a clear button.
-- The matching Shayan admin account can access a local account-management panel and export its data.
-- Local accounts store a display name and mobile username on-device; account statistics use compact cards.
-- Light, paper, dark and system themes, including theme-aware interactive surfaces.
-- Local account profile, favorites and reading history stored in IndexedDB with localStorage fallback.
-- Optional Node/SQLite server sync stores users, consent events, device snapshots and feedback through versioned API routes.
-- Feedback uses an in-app form and falls back to a local outbox when no server is configured.
-- Responsive layout with a shorter fixed mobile dock and installable PWA metadata.
-- Lazy poem loading, compressed data files and chunked large collections.
+- Browse poets, collections and poems, or search Persian verse with normalized text and highlighted matches.
+- Read with focus mode, adjustable type, copy/share actions, favorites, notes and a local reading history.
+- Switch between Persian and English, RTL and LTR layouts, multiple themes and separate app/poem fonts.
+- Save selected poems for offline reading on the current device.
+- Explore Flow for a random archive couplet, popular poets and poems, Hafez and Molana fortunes, the most-shared poems and couplets, and newly added archive poets.
+- Install the app as a PWA on supported browsers.
+- Keep user accounts and reading data in this browser. Registration asks for consent before sending account/device details to the optional server; account passwords are not sent to it.
+- Review consented server member records, device snapshots, feedback and aggregate poem counts in the protected server admin panel.
+
+## Run Without Server Sync
+
+Serve this folder over HTTP; opening `index.html` with `file://` does not support the app's data loading or service worker.
+
+```bash
+python3 -m http.server 8080
+```
+
+Open <http://localhost:8080>. This static option keeps accounts, favorites, notes and reading history in the browser. Server-backed account/device sync and server feedback collection require the Node server below.
+
+## Run With The Optional Server
+
+Requires Node.js `22.5` or later. No package installation is needed; SQLite is built into Node.
+
+```bash
+JARYAN_ADMIN_PASSWORD="use-a-unique-password-of-at-least-16-characters" node server/server.js
+```
+
+The server serves the app and API on port `8787` by default. Sign in to the server admin panel with username `admin` and the configured password. If the password is missing or shorter than 16 characters, admin sign-in is disabled. Admin sessions last up to eight hours and are held in memory, so restarting the server signs admins out.
+
+### Server Settings
+
+- `PORT` and `HOST`: listen port and network interface; defaults are `8787` and `0.0.0.0`.
+- `JARYAN_ADMIN_PASSWORD`: required for server admin sign-in; use a unique secret with at least 16 characters.
+- `JARYAN_DB_PATH`: SQLite file path. It must be outside the public app folder. By default the server creates `../.jaryan-private/jaryan.sqlite` relative to the app folder.
+- `JARYAN_ALLOWED_ORIGINS`: comma-separated list of additional frontend origins allowed to call the API. Same-origin requests work without this setting.
+- `JARYAN_TRUST_PROXY=true`: use only behind a trusted proxy that overwrites forwarded IP/protocol/country headers; otherwise forwarded values are ignored.
+- `JARYAN_COOKIE_SECURE=false`: local plain-HTTP testing only. Keep the secure-cookie default for an HTTPS deployment.
+
+Keep the SQLite file and backups private. The server records member profile fields, consent time, device details, IP address and user agent for opted-in accounts. Country is recorded only when trusted proxy headers are enabled and supplied. Guest feedback stores only its category, message and page; member feedback may also be linked to the member/device and request metadata. Poem views and poem/couplet share actions are aggregate counts with no per-reader identity or history. Share counts start with this update; earlier shares were not tracked. Local-only profiles and passwords are not uploaded.
+
+## Deploy
+
+Static hosting supports the local-only app. To use server features, run the Node server over HTTPS or host the API separately and set `window.JARYAN_API_BASE` before `app.js` loads. If the frontend is on a different origin, list that exact origin in `JARYAN_ALLOWED_ORIGINS`. For server admin sign-in, serve the frontend and API on the same origin or same site; the strict session cookie is not sent cross-site. Keep `data`, `assets`, `service-worker.js` and their paths intact; serve `.bin` files without a `Content-Encoding: gzip` header.
 
 ## Project Structure
 
@@ -36,62 +57,35 @@ Jaryan is a lightweight web app for discovering, searching, reading and saving P
 index.html                 Application shell
 app.js                     Routing, rendering, state and interactions
 styles.css                 Responsive design, themes and motion
-fab-morph.tsx              Standalone React/Tailwind Fab Morph reference
-manifest.webmanifest       PWA metadata
-service-worker.js          Offline shell and data cache
-data/catalog.json          Poet and collection catalog
-data/poem-index.json       Lightweight poem index
-data/search.bin            Compressed full-text search index
-data/poems/*.bin           Compressed poem collections
-data/poems/chunks/*.bin    Chunks for large collections
-assets/                    Fonts and application icon
-package.json              Optional Node server command
-server/server.js          Static host and SQLite API
-server/schema.sql         Extensible user, device, consent and feedback schema
-server/README.md          Server setup and API notes
+data/                      Poet catalogue, poem indexes and compressed poems
+assets/                    App icon and bundled fonts
+service-worker.js          App shell and offline data cache
+search-worker.js           On-demand full-text search
+package.json               Start, check and test scripts
+server/server.js           Static host and optional SQLite API
+server/schema.sql          Database schema
+server/server.test.js      Server integration test
+server/README.md           Server configuration and API notes
 README.fa.md               Persian documentation
 ```
 
-## Run Locally
-
-The app must be served over HTTP or HTTPS. Opening `index.html` directly with `file://` prevents data fetching and service-worker registration.
+## Checks
 
 ```bash
-python3 -m http.server 8080
+npm run check
+npm test
 ```
 
-Open <http://localhost:8080> in a browser. For account and feedback sync, run `npm start` instead; it serves the same app with the SQLite API on port `8787`.
+Or run the checks directly with Node:
 
-## Deploy
+```bash
+node --check app.js
+node --check server/server.js
+node --check service-worker.js
+node --check search-worker.js
+node --test server/server.test.js
+```
 
-Jaryan can be deployed as a static site to GitHub Pages, Netlify, Vercel or any HTTPS host.
+## Content And License
 
-1. Upload the contents of this directory.
-2. Set the site root to the directory containing `index.html`.
-3. Keep the `data`, `assets` and `service-worker.js` paths unchanged.
-4. Serve `.bin` files without a `Content-Encoding: gzip` header; the app handles decompression in the browser.
-
-## Architecture Notes
-
-Jaryan uses a small vanilla JavaScript renderer with event delegation and hash routing. Catalog and poem-index data load first. Full poem text is fetched only when a collection is opened, while the search index is loaded on demand. Large collections are split into 256-entry chunks. Motion is limited to transform, opacity and filter where possible, and reduced-motion preferences are respected.
-
-Without the optional Node server, the profile and feedback outbox remain device-local. With the server enabled, the consented account/device data and feedback are stored in SQLite through `/api/v1/users/upsert` and `/api/v1/feedback`.
-
-## Verification
-
-The release was checked with:
-
-- JavaScript syntax validation for `app.js` and `service-worker.js`.
-- ZIP integrity validation.
-- Browser checks for desktop and mobile poem routes.
-- Fab open/close behavior, theme-aware colors and outside-click dismissal.
-- Persistent saved state, green copy confirmation and focus-mode navigation.
-- Header/footer flex sizing, route scroll position and responsive controls.
-
-## Data and Licensing
-
-Before public distribution, document the licenses and sources for the poem corpus and bundled fonts in this section. The project should only be deployed with content that is cleared for redistribution.
-
-## License
-
-No license is declared yet. Add an explicit license before accepting external contributions or publishing the source for reuse.
+No project license is declared yet. Confirm redistribution rights and record sources for the poem collections and bundled fonts before publishing or accepting external contributions.
