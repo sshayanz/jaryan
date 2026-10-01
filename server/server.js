@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { mkdir, readFile, stat } from 'node:fs/promises';
 import { dirname, extname, isAbsolute, join, normalize, relative, resolve, sep } from 'node:path';
@@ -16,7 +16,8 @@ const relativeDbPath = relative(root, dbPath);
 if (!relativeDbPath.startsWith(`..${sep}`) && relativeDbPath !== '..' && !isAbsolute(relativeDbPath)) {
   throw new Error('JARYAN_DB_PATH must point outside the public app directory');
 }
-const adminPassword = String(process.env.JARYAN_ADMIN_PASSWORD || '');
+const adminSeedPassword = String(process.env.JARYAN_ADMIN_PASSWORD || '');
+const shayanSeedPassword = String(process.env.JARYAN_SHAYAN_PASSWORD || '');
 const cookieSecure = process.env.JARYAN_COOKIE_SECURE !== 'false';
 const allowedOrigins = new Set(
   String(process.env.JARYAN_ALLOWED_ORIGINS || process.env.JARYAN_ALLOWED_ORIGIN || '')
@@ -25,17 +26,21 @@ const allowedOrigins = new Set(
 const schema = await readFile(join(here, 'schema.sql'), 'utf8');
 await mkdir(dirname(dbPath), { recursive: true });
 const db = new DatabaseSync(dbPath);
+db.exec('PRAGMA journal_mode = WAL; PRAGMA synchronous = FULL;');
 db.exec(schema);
 
 const columns = table => new Set(db.prepare(`PRAGMA table_info(${table})`).all().map(column => column.name));
+const memberColumns = columns('members');
+if (!memberColumns.has('password_hash')) db.exec("ALTER TABLE members ADD COLUMN password_hash TEXT NOT NULL DEFAULT ''");
+if (!memberColumns.has('role')) db.exec("ALTER TABLE members ADD COLUMN role TEXT NOT NULL DEFAULT 'user'");
+db.exec('CREATE INDEX IF NOT EXISTS idx_members_role ON members(role, created_at)');
 if (!columns('feedback').has('member_id')) {
   db.exec('ALTER TABLE feedback ADD COLUMN member_id TEXT REFERENCES members(id) ON DELETE SET NULL');
 }
 db.exec('CREATE INDEX IF NOT EXISTS idx_feedback_member ON feedback(member_id, created_at)');
 
 const rates = new Map();
-const adminFailures = new Map();
-const adminSessions = new Map();
+const loginFailures = new Map();
 const now = () => new Date().toISOString();
 const text = (value, max) => String(value ?? '').trim().slice(0, max);
 const normalizeMobile = value => text(value, 32)
@@ -136,27 +141,79 @@ const deviceDetails = input => {
 };
 const cookieValue = (request, name) => String(request.headers.cookie || '').split(';')
   .map(item => item.trim()).find(item => item.startsWith(`${name}=`))?.slice(name.length + 1) || '';
-const adminSession = request => {
-  const token = cookieValue(request, 'jaryan_admin_session');
-  const expires = adminSessions.get(token);
-  if (!token || !expires || expires <= Date.now()) {
-    if (token) adminSessions.delete(token);
-    return false;
-  }
-  return true;
+const passwordHash = value => {
+  const salt = randomBytes(16).toString('hex');
+  return `scrypt$${salt}$${scryptSync(String(value), salt, 64).toString('hex')}`;
+};
+const passwordMatches = (value, encoded) => {
+  const [scheme, salt, hash] = String(encoded || '').split('$');
+  if (scheme !== 'scrypt' || !/^[\da-f]{32}$/.test(salt || '') || !/^[\da-f]{128}$/.test(hash || '')) return false;
+  const candidate = scryptSync(String(value || ''), salt, 64);
+  const expected = Buffer.from(hash, 'hex');
+  return timingSafeEqual(candidate, expected);
 };
 const cookieOptions = request => `Path=/; HttpOnly; SameSite=Strict; Max-Age=28800${cookieSecure ? '; Secure' : ''}`;
 const clearCookie = request => `Path=/; HttpOnly; SameSite=Strict; Max-Age=0${cookieSecure ? '; Secure' : ''}`;
-const passwordMatches = value => {
-  if (!adminPassword || adminPassword.length < 16) return false;
-  const candidate = createHash('sha256').update(String(value || '')).digest();
-  const expected = createHash('sha256').update(adminPassword).digest();
-  return timingSafeEqual(candidate, expected);
+const sessionTokenHash = token => createHash('sha256').update(String(token || '')).digest('hex');
+const sessionMember = request => {
+  const token = cookieValue(request, 'jaryan_session');
+  if (!token) return null;
+  const member = db.prepare(`SELECT m.* FROM auth_sessions s JOIN members m ON m.id = s.member_id
+    WHERE s.token_hash = ? AND s.expires_at > ?`).get(sessionTokenHash(token), now());
+  if (!member) db.prepare('DELETE FROM auth_sessions WHERE token_hash = ? OR expires_at <= ?').run(sessionTokenHash(token), now());
+  else if (Date.now() - Date.parse(member.last_seen_at) > 5 * 60_000) {
+    const timestamp = now();
+    db.prepare('UPDATE members SET last_seen_at = ? WHERE id = ?').run(timestamp, member.id);
+    member.last_seen_at = timestamp;
+  }
+  return member || null;
 };
+const adminSession = request => sessionMember(request)?.role === 'admin';
+const createSession = memberId => {
+  const token = randomBytes(32).toString('base64url');
+  const timestamp = now();
+  db.prepare('DELETE FROM auth_sessions WHERE expires_at <= ?').run(timestamp);
+  db.prepare('INSERT INTO auth_sessions (token_hash, member_id, created_at, expires_at) VALUES (?, ?, ?, ?)')
+    .run(sessionTokenHash(token), memberId, timestamp, new Date(Date.now() + 8 * 60 * 60_000).toISOString());
+  return token;
+};
+const clearSession = request => {
+  const token = cookieValue(request, 'jaryan_session');
+  if (token) db.prepare('DELETE FROM auth_sessions WHERE token_hash = ?').run(sessionTokenHash(token));
+};
+const publicAccount = member => ({
+  id: member.id, username: member.username, displayName: member.display_name, email: member.email,
+  mobile: member.mobile, birthDate: member.birth_date, consentAt: member.consent_at,
+  createdAt: member.created_at, updatedAt: member.updated_at, lastSeenAt: member.last_seen_at, role: member.role
+});
+const seedAccount = (username, displayName, role, password, localId, passwordEnv) => {
+  const key = usernameKey(username);
+  const existing = db.prepare('SELECT id, password_hash FROM members WHERE username_key = ?').get(key);
+  const timestamp = now();
+  if (existing) {
+    if (!existing.password_hash || (role === 'admin' && password)) {
+      if (password.length < 5) throw new Error(`${passwordEnv} is required to initialize ${username}`);
+      db.prepare('UPDATE members SET password_hash = ?, role = ?, updated_at = ? WHERE id = ?')
+        .run(passwordHash(password), role, timestamp, existing.id);
+    }
+    return;
+  }
+  if (password.length < 5) throw new Error(`${passwordEnv} is required to initialize ${username}`);
+  db.prepare(`INSERT INTO members (id, local_id, username, username_key, password_hash, role, display_name,
+    email, mobile, birth_date, consent_at, created_at, updated_at, last_seen_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, '', '', '', ?, ?, ?, ?)`)
+    .run(randomUUID(), localId, username, key, passwordHash(password), role, displayName, timestamp, timestamp, timestamp, timestamp);
+};
+seedAccount('admin', 'ادمین', 'admin', adminSeedPassword, 'seed:admin', 'JARYAN_ADMIN_PASSWORD');
+seedAccount('shayan', 'شایان', 'user', shayanSeedPassword, 'seed:shayan', 'JARYAN_SHAYAN_PASSWORD');
 const adminData = () => {
-  const members = db.prepare(`SELECT id, username, display_name AS displayName, email, mobile,
-    birth_date AS birthDate, consent_at AS consentAt, created_at AS createdAt,
-    updated_at AS updatedAt, last_seen_at AS lastSeenAt FROM members ORDER BY created_at DESC LIMIT 500`).all();
+  const members = db.prepare(`SELECT m.id, m.username, m.display_name AS displayName, m.email, m.mobile,
+    m.birth_date AS birthDate, m.consent_at AS consentAt, m.created_at AS createdAt,
+    m.updated_at AS updatedAt, m.last_seen_at AS lastSeenAt,
+    (SELECT COUNT(*) FROM user_favorites f WHERE f.member_id = m.id) AS favoritesCount,
+    (SELECT COALESCE(SUM(h.views), 0) FROM user_poem_history h WHERE h.member_id = m.id) AS viewsCount,
+    (SELECT COUNT(*) FROM user_activity a WHERE a.member_id = m.id AND a.event_type = 'share') AS sharesCount
+    FROM members m WHERE m.role = 'user' ORDER BY m.created_at DESC LIMIT 500`).all();
   const devices = db.prepare(`SELECT member_id AS memberId, device_key AS deviceKey,
     first_seen_at AS firstSeenAt, last_seen_at AS lastSeenAt, ip_address AS ip,
     country_code AS country, user_agent AS userAgent, details_json AS details
@@ -232,8 +289,8 @@ const saveFeedback = (request, payload) => {
   const message = text(payload.message, 3000);
   const category = ['general', 'bug', 'suggestion'].includes(payload.category) ? payload.category : 'general';
   if (!message) throw Object.assign(new Error('Message is required'), { status: 400 });
-  const memberId = text(payload.memberId, 80);
-  const member = memberId ? db.prepare('SELECT id, username, display_name, mobile FROM members WHERE id = ?').get(memberId) : null;
+  const current = sessionMember(request);
+  const member = current?.role === 'user' ? current : null;
   const timestamp = now();
   db.prepare(`INSERT INTO feedback (id, user_id, member_id, display_name, mobile, category, message, page, device_json, ip_address, country_code, user_agent, created_at)
     VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
@@ -243,7 +300,7 @@ const saveFeedback = (request, payload) => {
   return { accepted: true, member: member?.username || null };
 };
 
-const saveShares = payload => {
+const saveShares = (request, payload) => {
   const poemId = text(payload.poemId, 220);
   const wholePoem = payload.wholePoem === true;
   const indexes = Array.isArray(payload.coupletIndexes) ? [...new Set(payload.coupletIndexes)] : [];
@@ -252,18 +309,131 @@ const saveShares = payload => {
     throw Object.assign(new Error('Invalid share selection'), { status: 400 });
   }
   const timestamp = now();
+  const member = sessionMember(request);
   const insert = db.prepare(`INSERT INTO content_shares (share_key, poem_id, couplet_index, shares, updated_at)
     VALUES (?, ?, ?, 1, ?) ON CONFLICT(share_key) DO UPDATE SET shares = shares + 1, updated_at = excluded.updated_at`);
+  const activity = db.prepare(`INSERT INTO user_activity (id, member_id, event_type, item_type, item_id, poem_id, couplet_index, created_at)
+    VALUES (?, ?, 'share', ?, ?, ?, ?, ?)`);
   db.exec('BEGIN');
   try {
-    if (wholePoem) insert.run(`poem:${poemId}`, poemId, null, timestamp);
-    else for (const index of indexes) insert.run(`couplet:${poemId}:${index}`, poemId, index, timestamp);
+    if (wholePoem) {
+      insert.run(`poem:${poemId}`, poemId, null, timestamp);
+      if (member?.role === 'user') activity.run(randomUUID(), member.id, 'poem', poemId, poemId, null, timestamp);
+    } else for (const index of indexes) {
+      insert.run(`couplet:${poemId}:${index}`, poemId, index, timestamp);
+      if (member?.role === 'user') activity.run(randomUUID(), member.id, 'couplet', `${poemId}/${index}`, poemId, index, timestamp);
+    }
     db.exec('COMMIT');
   } catch (error) {
     db.exec('ROLLBACK');
     throw error;
   }
   return { recorded: true };
+};
+
+const requiredUser = request => {
+  const member = sessionMember(request);
+  if (!member || member.role !== 'user') throw Object.assign(new Error('Sign-in required'), { status: 401 });
+  return member;
+};
+const registerAccount = (request, payload) => {
+  const username = text(payload.username, 60);
+  const key = usernameKey(username);
+  const displayName = text(payload.displayName, 80);
+  const email = text(payload.email, 160);
+  const mobile = normalizeMobile(payload.mobile);
+  const birthDate = text(payload.birthDate, 16);
+  const password = String(payload.password || '');
+  const consentAt = text(payload.consentAt, 40);
+  if (!/^[A-Za-z0-9_.-]{3,60}$/.test(username) || key === 'admin') throw Object.assign(new Error('Use an English username with at least three characters'), { status: 400 });
+  if (!displayName || !password || Array.from(password).length < 5 || Array.from(password).length > 120) throw Object.assign(new Error('Display name and a password of at least five characters are required'), { status: 400 });
+  if (!mobile || mobile.replace(/\D/g, '').length < 7) throw Object.assign(new Error('Invalid mobile number'), { status: 400 });
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw Object.assign(new Error('Invalid email'), { status: 400 });
+  if (!validBirthDate(birthDate)) throw Object.assign(new Error('Use a valid Jalali date (YYYY/MM/DD)'), { status: 400 });
+  if (payload.consent !== true || !consentAt || !Number.isFinite(Date.parse(consentAt))) throw Object.assign(new Error('Consent is required'), { status: 400 });
+  if (db.prepare('SELECT id FROM members WHERE username_key = ?').get(key)) throw Object.assign(new Error('Username is already registered'), { status: 409 });
+  const timestamp = now();
+  const id = randomUUID();
+  db.prepare(`INSERT INTO members (id, local_id, username, username_key, password_hash, role, display_name,
+    email, mobile, birth_date, consent_at, created_at, updated_at, last_seen_at)
+    VALUES (?, ?, ?, ?, ?, 'user', ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(id, `server:${id}`, username, key, passwordHash(password), displayName, email, mobile, birthDate, consentAt, timestamp, timestamp, timestamp);
+  db.prepare(`INSERT INTO member_consents (id, member_id, consent_at, ip_address, country_code, user_agent, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)`)
+    .run(randomUUID(), id, consentAt, clientIp(request), country(request), userAgent(request), timestamp);
+  const details = deviceDetails(payload.device);
+  db.prepare(`INSERT INTO member_devices (id, member_id, device_key, first_seen_at, last_seen_at, ip_address, country_code, user_agent, details_json)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(randomUUID(), id, text(payload.deviceId, 80) || randomUUID(), timestamp, timestamp, clientIp(request), country(request), userAgent(request), JSON.stringify(details));
+  return db.prepare('SELECT * FROM members WHERE id = ?').get(id);
+};
+const loginAccount = (payload, role = '') => {
+  const username = text(payload.username, 60);
+  const member = db.prepare('SELECT * FROM members WHERE username_key = ?').get(usernameKey(username));
+  if (!member || !passwordMatches(payload.password, member.password_hash) || (role && member.role !== role)) {
+    throw Object.assign(new Error('Invalid username or password'), { status: 401 });
+  }
+  const timestamp = now();
+  db.prepare('UPDATE members SET last_seen_at = ?, updated_at = ? WHERE id = ?').run(timestamp, timestamp, member.id);
+  member.last_seen_at = timestamp;
+  member.updated_at = timestamp;
+  return member;
+};
+const accountData = request => {
+  const member = requiredUser(request);
+  const favorites = { poem: [], couplet: [], poet: [], book: [] };
+  for (const item of db.prepare('SELECT item_type AS type, item_id AS id FROM user_favorites WHERE member_id = ?').all(member.id)) favorites[item.type]?.push(item.id);
+  const history = db.prepare(`SELECT poem_id AS id, last_viewed_at AS at FROM user_poem_history
+    WHERE member_id = ? ORDER BY last_viewed_at DESC LIMIT 100`).all(member.id)
+    .map(item => ({ id: item.id, at: Date.parse(item.at) }));
+  return { account: publicAccount(member), favorites, history };
+};
+const clearAccountHistory = request => {
+  const member = requiredUser(request);
+  db.prepare('DELETE FROM user_poem_history WHERE member_id = ?').run(member.id);
+  return { cleared: true };
+};
+const saveAccountProfile = (request, payload) => {
+  const member = requiredUser(request);
+  const displayName = text(payload.displayName, 80);
+  const email = text(payload.email, 160);
+  const mobile = normalizeMobile(payload.mobile);
+  const birthDate = text(payload.birthDate, 16);
+  if (!displayName) throw Object.assign(new Error('Display name is required'), { status: 400 });
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw Object.assign(new Error('Invalid email'), { status: 400 });
+  if (mobile && mobile.replace(/\D/g, '').length < 7) throw Object.assign(new Error('Invalid mobile number'), { status: 400 });
+  if (!validBirthDate(birthDate)) throw Object.assign(new Error('Use a valid Jalali date (YYYY/MM/DD)'), { status: 400 });
+  db.prepare('UPDATE members SET display_name = ?, email = ?, mobile = ?, birth_date = ?, updated_at = ? WHERE id = ?')
+    .run(displayName, email, mobile, birthDate, now(), member.id);
+  return { account: publicAccount(db.prepare('SELECT * FROM members WHERE id = ?').get(member.id)) };
+};
+const changeAccountCredentials = (request, payload) => {
+  const member = requiredUser(request);
+  if (!passwordMatches(payload.currentPassword, member.password_hash)) throw Object.assign(new Error('Current password is incorrect'), { status: 401 });
+  const username = text(payload.username, 60) || member.username;
+  const key = usernameKey(username);
+  const password = String(payload.password || '');
+  if (!/^[A-Za-z0-9_.-]{3,60}$/.test(username) || key === 'admin') throw Object.assign(new Error('Invalid username'), { status: 400 });
+  if (password && (Array.from(password).length < 5 || Array.from(password).length > 120)) throw Object.assign(new Error('Password must contain at least five characters'), { status: 400 });
+  const owner = db.prepare('SELECT id FROM members WHERE username_key = ?').get(key);
+  if (owner && owner.id !== member.id) throw Object.assign(new Error('Username is already registered'), { status: 409 });
+  db.prepare('UPDATE members SET username = ?, username_key = ?, password_hash = ?, updated_at = ? WHERE id = ?')
+    .run(username, key, password ? passwordHash(password) : member.password_hash, now(), member.id);
+  return { account: publicAccount(db.prepare('SELECT * FROM members WHERE id = ?').get(member.id)) };
+};
+const favoriteItem = (request, payload) => {
+  const member = requiredUser(request);
+  const type = text(payload.type, 16);
+  const id = text(payload.id, 220);
+  const patterns = { poem: /^[\w-]+\/[\w-]+\/[\w-]+$/, couplet: /^[\w-]+\/[\w-]+\/[\w-]+\/\d+$/, poet: /^[\w-]+$/, book: /^[\w-]+\/[\w-]+$/ };
+  if (!patterns[type]?.test(id) || typeof payload.active !== 'boolean') throw Object.assign(new Error('Invalid favorite'), { status: 400 });
+  const timestamp = now();
+  if (payload.active) db.prepare('INSERT OR IGNORE INTO user_favorites (member_id, item_type, item_id, created_at) VALUES (?, ?, ?, ?)').run(member.id, type, id, timestamp);
+  else db.prepare('DELETE FROM user_favorites WHERE member_id = ? AND item_type = ? AND item_id = ?').run(member.id, type, id);
+  db.prepare(`INSERT INTO user_activity (id, member_id, event_type, item_type, item_id, poem_id, couplet_index, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(randomUUID(), member.id, payload.active ? 'favorite' : 'unfavorite', type, id, type === 'poem' ? id : '', type === 'couplet' ? Number(id.split('/').at(-1)) : null, timestamp);
+  return { active: payload.active };
 };
 
 const mime = {
@@ -294,7 +464,8 @@ const serve = async (request, response, pathname) => {
 };
 
 const server = createServer(async (request, response) => {
-  const pathname = new URL(request.url || '/', `http://${request.headers.host || 'localhost'}`).pathname;
+  const requestUrl = new URL(request.url || '/', `http://${request.headers.host || 'localhost'}`);
+  const pathname = requestUrl.pathname;
   if (!pathname.startsWith('/api/')) return serve(request, response, pathname);
   const headers = corsHeaders(request);
   if (!originAllowed(request)) return send(response, 403, { error: 'Origin not allowed' });
@@ -305,8 +476,16 @@ const server = createServer(async (request, response) => {
   if (!rateLimit(request)) return send(response, 429, { error: 'Too many requests' }, headers);
   try {
     if (request.method === 'GET' && pathname === '/api/v1/health') return send(response, 200, { ok: true, version: '1' }, headers);
+    if (request.method === 'GET' && pathname === '/api/v1/auth/username-availability') {
+      const username = text(requestUrl.searchParams.get('username'), 60);
+      const valid = /^[A-Za-z0-9_.-]{3,60}$/.test(username) && usernameKey(username) !== 'admin';
+      const available = valid && !db.prepare('SELECT id FROM members WHERE username_key = ?').get(usernameKey(username));
+      return send(response, 200, { available: Boolean(available) }, headers);
+    }
     if (request.method === 'GET' && pathname === '/api/v1/flow') {
       const popular = db.prepare('SELECT poem_id AS poemId, views FROM poem_views ORDER BY views DESC, updated_at DESC LIMIT 20').all();
+      const popularFavorites = db.prepare(`SELECT item_id AS poemId, COUNT(*) AS favorites FROM user_favorites
+        WHERE item_type = 'poem' GROUP BY item_id ORDER BY favorites DESC, poemId LIMIT 20`).all();
       const popularPoets = db.prepare(`SELECT substr(poem_id, 1, instr(poem_id, '/') - 1) AS poetId, SUM(views) AS views
         FROM poem_views GROUP BY poetId ORDER BY views DESC, poetId LIMIT 20`).all();
       const sharedPoets = db.prepare(`SELECT substr(poem_id, 1, instr(poem_id, '/') - 1) AS poetId, SUM(shares) AS shares
@@ -315,27 +494,61 @@ const server = createServer(async (request, response) => {
         WHERE couplet_index IS NULL ORDER BY shares DESC, updated_at DESC LIMIT 20`).all();
       const sharedCouplets = db.prepare(`SELECT poem_id AS poemId, couplet_index AS coupletIndex, shares FROM content_shares
         WHERE couplet_index IS NOT NULL ORDER BY shares DESC, updated_at DESC LIMIT 20`).all();
-      return send(response, 200, { popular, popularPoets, sharedPoets, sharedPoems, sharedCouplets }, headers);
+      return send(response, 200, { popular, popularFavorites, popularPoets, sharedPoets, sharedPoems, sharedCouplets }, headers);
     }
+    if (request.method === 'GET' && pathname === '/api/v1/auth/session') {
+      const member = sessionMember(request);
+      return send(response, 200, { authenticated: Boolean(member), account: member ? publicAccount(member) : null }, headers);
+    }
+    if (request.method === 'GET' && pathname === '/api/v1/auth/data') return send(response, 200, accountData(request), headers);
     if (request.method === 'GET' && pathname === '/api/v1/admin/session') return send(response, 200, { authenticated: adminSession(request) }, headers);
-    if (request.method === 'POST' && pathname === '/api/v1/admin/login') {
+    if (request.method === 'POST' && ['/api/v1/auth/login', '/api/v1/admin/login'].includes(pathname)) {
       const address = clientIp(request);
-      for (const [token, expires] of adminSessions) if (expires <= Date.now()) adminSessions.delete(token);
-      const failed = adminFailures.get(address) || { count: 0, at: Date.now() };
-      if (Date.now() - failed.at < 15 * 60_000 && failed.count >= 5) return send(response, 429, { error: 'Too many login attempts' }, headers);
+      const failed = loginFailures.get(address) || { count: 0, at: Date.now() };
+      if (Date.now() - failed.at > 15 * 60_000) { failed.count = 0; failed.at = Date.now(); }
+      if (failed.count >= 8) return send(response, 429, { error: 'Too many login attempts' }, headers);
       const payload = await body(request);
-      if (!passwordMatches(payload.password)) {
-        failed.count += 1; failed.at = Date.now(); adminFailures.set(address, failed);
-        return send(response, 401, { error: adminPassword ? 'Invalid admin credentials' : 'Admin password is not configured' }, headers);
+      let member;
+      try { member = loginAccount(payload, pathname === '/api/v1/admin/login' ? 'admin' : ''); }
+      catch (error) {
+        failed.count += 1; failed.at = Date.now(); loginFailures.set(address, failed);
+        return send(response, error.status || 401, { error: error.message || 'Invalid username or password' }, headers);
       }
-      adminFailures.delete(address);
-      const token = randomBytes(32).toString('base64url');
-      adminSessions.set(token, Date.now() + 8 * 60 * 60_000);
-      return send(response, 200, { authenticated: true }, { ...headers, 'Set-Cookie': `jaryan_admin_session=${token}; ${cookieOptions(request)}` });
+      loginFailures.delete(address);
+      const token = createSession(member.id);
+      return send(response, 200, { authenticated: true, account: publicAccount(member) }, { ...headers, 'Set-Cookie': `jaryan_session=${token}; ${cookieOptions(request)}` });
     }
-    if (request.method === 'POST' && pathname === '/api/v1/admin/logout') {
-      adminSessions.delete(cookieValue(request, 'jaryan_admin_session'));
-      return send(response, 200, { authenticated: false }, { ...headers, 'Set-Cookie': `jaryan_admin_session=; ${clearCookie(request)}` });
+    if (request.method === 'POST' && ['/api/v1/auth/logout', '/api/v1/admin/logout'].includes(pathname)) {
+      clearSession(request);
+      return send(response, 200, { authenticated: false }, { ...headers, 'Set-Cookie': `jaryan_session=; ${clearCookie(request)}` });
+    }
+    if (request.method === 'POST' && pathname === '/api/v1/auth/register') {
+      const payload = await body(request);
+      db.exec('BEGIN');
+      try {
+        const member = registerAccount(request, payload);
+        const token = createSession(member.id);
+        db.exec('COMMIT');
+        return send(response, 201, { authenticated: true, account: publicAccount(member) }, { ...headers, 'Set-Cookie': `jaryan_session=${token}; ${cookieOptions(request)}` });
+      } catch (error) {
+        db.exec('ROLLBACK');
+        throw error;
+      }
+    }
+    if (request.method === 'POST' && pathname === '/api/v1/auth/profile') {
+      const payload = await body(request);
+      return send(response, 200, saveAccountProfile(request, payload), headers);
+    }
+    if (request.method === 'POST' && pathname === '/api/v1/auth/credentials') {
+      const payload = await body(request);
+      return send(response, 200, changeAccountCredentials(request, payload), headers);
+    }
+    if (request.method === 'POST' && pathname === '/api/v1/auth/favorites') {
+      const payload = await body(request);
+      return send(response, 200, favoriteItem(request, payload), headers);
+    }
+    if (request.method === 'POST' && pathname === '/api/v1/auth/history/clear') {
+      return send(response, 200, clearAccountHistory(request), headers);
     }
     if (pathname.startsWith('/api/v1/admin/') && !adminSession(request)) return send(response, 401, { error: 'Admin sign-in required' }, headers);
     if (request.method === 'GET' && pathname === '/api/v1/admin/data') return send(response, 200, adminData(), headers);
@@ -357,14 +570,29 @@ const server = createServer(async (request, response) => {
     }
     if (request.method !== 'POST') return send(response, 405, { error: 'Method not allowed' }, headers);
     const payload = await body(request);
-    if (pathname === '/api/v1/members/sync') return send(response, 200, { member: syncMember(request, payload) }, headers);
     if (pathname === '/api/v1/feedback') return send(response, 201, saveFeedback(request, payload), headers);
-    if (pathname === '/api/v1/shares') return send(response, 202, saveShares(payload), headers);
+    if (pathname === '/api/v1/shares') return send(response, 202, saveShares(request, payload), headers);
     if (pathname === '/api/v1/views') {
       const poemId = text(payload.poemId, 220);
       if (!/^[\w-]+\/[\w-]+\/[\w-]+$/.test(poemId)) return send(response, 400, { error: 'Invalid poem id' }, headers);
-      db.prepare(`INSERT INTO poem_views (poem_id, views, updated_at) VALUES (?, 1, ?)
-        ON CONFLICT(poem_id) DO UPDATE SET views = views + 1, updated_at = excluded.updated_at`).run(poemId, now());
+      const timestamp = now();
+      const member = sessionMember(request);
+      db.exec('BEGIN');
+      try {
+        db.prepare(`INSERT INTO poem_views (poem_id, views, updated_at) VALUES (?, 1, ?)
+          ON CONFLICT(poem_id) DO UPDATE SET views = views + 1, updated_at = excluded.updated_at`).run(poemId, timestamp);
+        if (member?.role === 'user') {
+          db.prepare(`INSERT INTO user_poem_history (member_id, poem_id, views, first_viewed_at, last_viewed_at)
+            VALUES (?, ?, 1, ?, ?) ON CONFLICT(member_id, poem_id) DO UPDATE SET views = views + 1, last_viewed_at = excluded.last_viewed_at`)
+            .run(member.id, poemId, timestamp, timestamp);
+          db.prepare(`INSERT INTO user_activity (id, member_id, event_type, item_type, item_id, poem_id, created_at)
+            VALUES (?, ?, 'view', 'poem', ?, ?, ?)`).run(randomUUID(), member.id, poemId, poemId, timestamp);
+        }
+        db.exec('COMMIT');
+      } catch (error) {
+        db.exec('ROLLBACK');
+        throw error;
+      }
       return send(response, 202, { recorded: true }, headers);
     }
     return send(response, 404, { error: 'Not found' }, headers);
