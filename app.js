@@ -426,7 +426,7 @@
       flowPopular: 'پربازدیدترین‌ها', flowPoets: 'شاعران', flowPoems: 'شعرها', flowFortunes: 'فال',
       flowHafez: 'فال حافظ', flowMolana: 'فال مولانا', flowTarot: 'فال تاروت', flowTarotSoon: 'هنوز راه‌اندازی نشده',
       flowShared: 'بیشترین اشتراک‌گذاری', flowSharedPoems: 'شعرها', flowSharedCouplets: 'بیت‌ها', flowRecent: 'تازه‌ترین‌ها',
-       flowVerse: 'یه بیت', flowVerseHint: 'برای بیت تازه لمس کن یا ۳ ثانیه نگه‌دار', flowViewedCount: 'بازدید', flowSharedCount: 'اشتراک',
+        flowViewedCount: 'بازدید', flowSharedCount: 'اشتراک',
       flowNoPopular: 'با بیشتر شدن بازدیدها، اینجا پربازدیدترین‌ها را می‌بینی.', flowNoShared: 'هنوز اشتراکی ثبت نشده است.', flowUnavailable: 'داده‌های آمار در دسترس نیست؛ سرور اختیاری را فعال کن.',
       flowNoRecent: 'شاعر تازه‌ای به آرشیو اضافه نشده است.', flowLoading: 'در حال بارگذاری...', flowVerseLoading: 'در حال انتخاب یک بیت کوتاه...', flowVerseUnavailable: 'بارگذاری بیت شعر ممکن نشد.',
       flowFortuneAction: 'گرفتن فال', offlineSaved: 'شعر برای آفلاین آماده شد', offlineSaveFailed: 'ذخیرهٔ آفلاین انجام نشد؛ اتصال را بررسی کن.',
@@ -442,7 +442,7 @@
       flowPopular: 'Most viewed', flowPoets: 'Poets', flowPoems: 'Poems', flowFortunes: 'Fortunes',
       flowHafez: 'Hafez fortune', flowMolana: 'Molana fortune', flowTarot: 'Tarot reading', flowTarotSoon: 'Not available yet',
       flowShared: 'Most shared', flowSharedPoems: 'Poems', flowSharedCouplets: 'Couplets', flowRecent: 'Recently added poets',
-       flowVerse: 'A verse', flowVerseHint: 'Tap for a new verse or hold for 3 seconds', flowViewedCount: 'views', flowSharedCount: 'shares',
+        flowViewedCount: 'views', flowSharedCount: 'shares',
       flowNoPopular: 'As more poems are read, the most-viewed items will appear here.', flowNoShared: 'Nothing has been shared yet.', flowUnavailable: 'Statistics are unavailable. Enable the optional server.',
       flowNoRecent: 'No poets have been added recently.', flowLoading: 'Loading...', flowVerseLoading: 'Choosing a short verse...', flowVerseUnavailable: 'Could not load a verse.',
       flowFortuneAction: 'Draw a fortune', offlineSaved: 'Poem is ready offline', offlineSaveFailed: 'Could not save offline. Check your connection.',
@@ -1362,12 +1362,11 @@
         document.body.insertAdjacentHTML('beforeend', `<nav class="mobile-nav"><span class="nav-slider" aria-hidden="true"></span><button data-route="home">${icon('home')}<span>${tr('home')}</span></button><button data-route="flow">${icon('brand')}<span>${lang === 'fa' ? 'جریان' : 'Jaryan'}</span></button><button data-route="archive">${icon('search')}<span>${lang === 'fa' ? 'جست‌وجو' : 'Search'}</span></button><button class="account-route${adminClass}" data-route="account" aria-label="${label}" title="${label}">${icon('user')}<span>${label}</span></button></nav>`);
     };
 
-      const portraits = [
-        '<path d="M21 104c4-27 19-43 43-43s39 16 43 43M39 45c0-20 10-32 25-32s25 12 25 32-10 31-25 31-25-11-25-31Z"/><path d="M40 30c12-16 34-18 49-2M44 50c6 4 12 4 18 0M68 50c6 4 12 4 18 0M57 56c2 4 2 7 0 10M51 66c9 11 19 11 28 0M50 85c8 8 21 8 29 0M58 103V79M70 103V79M48 91l-9 13M80 91l9 13M31 23l-9 13M97 23l9 13"/>',
-        '<path d="M19 104c6-28 21-43 45-43s39 15 45 43M39 44c1-21 10-32 26-32s25 11 25 32c-1 20-10 31-25 31S40 64 39 44Z"/><path d="M40 30c14 5 32 5 48-2M48 53h8M70 53h8M57 59c2 3 2 6 0 9M57 68c6 4 12 4 18 0M49 79c9 10 23 10 32 0M48 91c9 6 23 6 32 0M45 101l11-15M83 101 72 86"/>',
-        '<path d="M20 104c5-28 20-43 44-43s39 15 44 43M40 44c0-20 9-32 24-32s24 12 24 32-9 31-24 31-24-11-24-31Z"/><path d="M42 29c14-10 31-9 44 2M49 54h7M72 54h7M59 59c2 3 2 6 0 9M56 68c5 5 11 5 17 0M50 82c9 7 21 7 30 0M43 99l13-16M85 99 72 83M90 26l12-11M99 35l13-2M31 28l-10-8"/>'
-      ];
-      const poetCard = (person, index) => { const name = poetName(person); const nameClass = name.length > 8 ? ' poet-name-long' : ''; return `<article class="poet-card glass" data-poet="${escapeHTML(person.i)}"><div class="poet-card-actions"><button class="icon-button" data-random="poet" data-random-poet="${escapeHTML(person.i)}" aria-label="${tr('randomPoem')}" title="${tr('randomPoem')}">${icon('fortune')}</button></div><h3 class="poet-name${nameClass}">${escapeHTML(name)}</h3><p>${escapeHTML((lang === 'fa' ? blurbs[person.i] : blurbsEn[person.i]) || '')}</p><span class="poet-count">${fa(person.b.length)} ${lang === 'fa' ? 'کتاب' : 'books'}</span><svg class="poet-sketch" viewBox="0 0 128 128" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${portraits[index % portraits.length]}</svg></article>`; };
+      const poetCard = person => {
+        const name = poetName(person);
+        const nameClass = name.length > 8 ? ' poet-name-long' : '';
+        return `<article class="poet-card glass" data-poet="${escapeHTML(person.i)}"><div class="poet-card-actions"><button class="icon-button" data-random="poet" data-random-poet="${escapeHTML(person.i)}" aria-label="${tr('randomPoem')}" title="${tr('randomPoem')}">${icon('fortune')}</button></div><h3 class="poet-name${nameClass}">${escapeHTML(name)}</h3><p>${escapeHTML((lang === 'fa' ? blurbs[person.i] : blurbsEn[person.i]) || '')}</p><span class="poet-count">${fa(person.b.length)} ${lang === 'fa' ? 'کتاب' : 'books'}</span></article>`;
+      };
    const homeView = () => {
      const visiblePeople = state.homePeopleExpanded ? people : people.slice(0, 10);
               return `<section class="landing"><div class="hero"><h1 class="hero-title">${tr('heroLead')}</h1><div class="hero-actions"><button class="button shine-button" data-random="all">${icon('fortune')}${tr('randomPoem')}</button><button class="button secondary search-action" data-route="archive">${icon('search')}${lang === 'fa' ? 'جست‌وجو' : 'Search'}</button></div><div class="metrics metrics-compact" data-counter-group><div class="metric"><strong data-count="${catalogue.length}">${lang === 'fa' ? '۰' : '0'}</strong><span>${lang === 'fa' ? 'مجموعه' : tr('collections')}</span></div><div class="metric"><strong data-count="${people.length}">${lang === 'fa' ? '۰' : '0'}</strong><span>${lang === 'fa' ? 'شاعر' : tr('poetsCount')}</span></div></div></div><div class="section-wrap poets-section"><div class="section-divider" aria-hidden="true"></div><div class="section-head"><div><h2>${tr('poets')}</h2></div></div><div class="poet-grid">${visiblePeople.map(poetCard).join('')}</div>${people.length > visiblePeople.length || state.homePeopleExpanded ? `<button class="more-button poet-more-button" data-more-poets>${state.homePeopleExpanded ? tr('lessPoets') : tr('morePoets')}</button>` : ''}</div></section>`;
@@ -1692,8 +1691,8 @@
           return `<article class="flow-card flow-recent-card" data-poet="${escapeHTML(person.i)}"><div class="flow-card-copy"><h3>${escapeHTML(poetName(person))}</h3><small>${count}</small></div></article>`;
         }).join('');
         const fortuneArt = type => {
-          if (type === 'hafez') return `<svg viewBox="0 0 96 96" aria-hidden="true"><path d="M27 83 31 62c2-10 9-15 19-15s17 5 19 15l4 21" fill="currentColor" opacity=".13"/><path d="M27 83 31 62c2-10 9-15 19-15s17 5 19 15l4 21M37 39c0-10 5-17 13-17s13 7 13 17-5 17-13 17-13-7-13-17Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M33 34c2-12 9-19 18-19s16 7 18 19c-7-2-13-6-18-13-4 7-10 11-18 13ZM22 83h52M22 83l-1 6h55l-1-6M38 68l10 6 10-6M48 74v10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-          if (type === 'moulavi') return `<svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="51" cy="17" r="7" fill="currentColor" opacity=".22"/><path d="m46 25 10 1 5 17M48 29 29 20M52 30l22-12M53 43c-9 4-15 12-19 23l-9 14c15 4 36 3 55-4-9-6-15-15-17-27M37 62c8 7 18 11 31 12M30 20l-6-4m51-6 6 3" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M25 80c14 4 32 4 50-3-10-6-17-15-18-26-10 4-17 13-21 24Z" fill="currentColor" opacity=".13"/></svg>`;
+          if (type === 'hafez') return '<span class="flow-fortune-vector flow-fortune-vector-hafez" aria-hidden="true"></span>';
+          if (type === 'moulavi') return '<span class="flow-fortune-vector flow-fortune-vector-moulana" aria-hidden="true"></span>';
           return `<svg viewBox="0 0 96 96" aria-hidden="true"><rect x="27" y="16" width="43" height="63" rx="7" transform="rotate(-10 27 16)" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="36" y="20" width="43" height="63" rx="7" transform="rotate(7 36 20)" fill="currentColor" opacity=".1"/><rect x="36" y="20" width="43" height="63" rx="7" transform="rotate(7 36 20)" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m53 38 4 8 9 1-7 6 2 9-8-5-8 4 2-9-6-6 9-1 3-7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
         };
         const fortuneCard = (poetId, type, label, note) => `<button type="button" class="flow-card flow-fortune-card" data-random="poet" data-random-poet="${poetId}"><span class="flow-fortune-art">${fortuneArt(type)}</span><span class="flow-fortune-copy"><strong>${label}</strong><small>${note}</small></span></button>`;
@@ -1702,8 +1701,8 @@
         const verse = state.flowVerse;
         const verseLines = verse?.couplets?.map(couplet => `<span class="flow-verse-couplet"><span>${escapeHTML(couplet[0])}</span><span>${escapeHTML(couplet[1])}</span></span>`).join('') || '';
         const verseBanner = verse
-          ? `<article class="flow-verse-banner" role="button" tabindex="0" data-flow-verse-card aria-label="${tr('flowVerseHint')}"><span class="flow-verse-label">${tr('flowVerse')}</span><blockquote>${verseLines}</blockquote><small class="flow-verse-attribution">${escapeHTML(verse.poetName)} · ${escapeHTML(verse.poemTitle)}</small><small class="flow-verse-instruction">${tr('flowVerseHint')}</small><span class="flow-verse-hold-track" aria-hidden="true"><span></span></span></article>`
-          : `<article class="flow-verse-banner flow-verse-loading" role="button" tabindex="0" data-flow-verse-card aria-label="${tr('flowVerseHint')}"><span class="flow-verse-label">${tr('flowVerse')}</span><span>${state.flowVerseLoading || !state.flowVerseRequested ? tr('flowVerseLoading') : tr('flowVerseUnavailable')}</span><small class="flow-verse-instruction">${tr('flowVerseHint')}</small><span class="flow-verse-hold-track" aria-hidden="true"><span></span></span></article>`;
+          ? `<button type="button" class="flow-verse-banner" data-flow-verse-card><span class="flow-verse-quote">${verseLines}</span><small class="flow-verse-attribution">${escapeHTML(verse.poetName)} · ${escapeHTML(verse.poemTitle)}</small></button>`
+          : `<button type="button" class="flow-verse-banner flow-verse-loading" data-flow-verse-card><span>${state.flowVerseLoading || !state.flowVerseRequested ? tr('flowVerseLoading') : tr('flowVerseUnavailable')}</span></button>`;
         return `<section class="page flow-page"><header class="flow-page-head">${verseBanner}</header><div class="flow-sections"><section class="flow-section"><header class="flow-section-head"><span>01</span><h2>${tr('flowPopular')}</h2></header>${slider(popularCards, tr('flowPopular'), tr('flowNoPopular'))}</section><section class="flow-section"><header class="flow-section-head"><span>02</span><h2>${tr('flowFortunes')}</h2></header>${slider(fortuneCards, tr('flowFortunes'), '', 'flow-fortune-slider')}</section><section class="flow-section"><header class="flow-section-head"><span>03</span><h2>${tr('flowShared')}</h2></header>${slider(sharedCards, tr('flowShared'), tr('flowNoShared'))}</section><section class="flow-section"><header class="flow-section-head"><span>04</span><h2>${tr('flowRecent')}</h2></header>${slider(recentPoetCards, tr('flowRecent'), tr('flowNoRecent'))}</section></div></section>`;
       };
 
@@ -1951,10 +1950,8 @@
 
     let searchTimer = 0;
     let searchRun = 0;
-    let flowVersePress = null;
     let flowSliderTouch = null;
     let flowSliderClickSuppress = null;
-    let suppressFlowVerseClick = false;
     const refreshArchiveResults = () => {
      const results = document.getElementById('archive-results');
      if (results) results.outerHTML = archiveResults();
@@ -2061,12 +2058,7 @@
      if (target.closest('[data-more-sections]')) { state.limit += 24; render(); return; }
      if (target.closest('[data-more-poets]')) { state.homePeopleExpanded = !state.homePeopleExpanded; render(); return; }
       if (target.closest('[data-clear-filters]')) { state.poet = 'همه'; state.book = 'همه'; state.genre = 'all'; state.archiveType = 'all'; state.limit = 24; render(); return; }
-        if (target.closest('[data-flow-verse-card]')) {
-          if (suppressFlowVerseClick && event.detail > 0) { suppressFlowVerseClick = false; return; }
-          suppressFlowVerseClick = false;
-          if (event.detail === 0) refreshFlowVerse();
-          return;
-        }
+        if (target.closest('[data-flow-verse-card]')) { refreshFlowVerse(); return; }
        const accountCard = target.closest('[data-account-card]');
        if (accountCard) { state.accountTab = accountCard.dataset.accountCard; render().then(scrollToPageStart); return; }
        if (target.closest('[data-account-overview]')) { state.accountTab = 'overview'; render().then(scrollToPageStart); return; }
@@ -2364,42 +2356,8 @@
      const fab = document.querySelector('.poem-fab');
      if (fab?.classList.contains('open') && !fab.contains(event.target)) closeFab();
    });
-   const finishFlowVersePress = (event, refresh = false) => {
-     const press = flowVersePress;
-     if (!press || (event && press.pointerId !== event.pointerId)) return;
-     clearTimeout(press.timer);
-     flowVersePress = null;
-     press.target.classList.remove('is-holding');
-     if (refresh && !press.completed) refreshFlowVerse();
-     if (refresh || press.completed) {
-       suppressFlowVerseClick = true;
-       setTimeout(() => { suppressFlowVerseClick = false; }, 500);
-     }
-   };
-   document.addEventListener('pointerdown', event => {
-     const card = event.target.closest?.('[data-flow-verse-card]');
-     if (!card || state.flowVerseLoading || !event.isPrimary || event.button > 0) return;
-     const press = { target: card, pointerId: event.pointerId, x: event.clientX, y: event.clientY, completed: false, timer: 0 };
-     flowVersePress = press;
-     requestAnimationFrame(() => { if (flowVersePress === press && card.isConnected) card.classList.add('is-holding'); });
-     press.timer = setTimeout(() => {
-       if (flowVersePress !== press) return;
-       press.completed = true;
-       card.classList.remove('is-holding');
-       card.classList.add('is-verse-refreshing');
-       refreshFlowVerse();
-     }, 3000);
-   }, { passive: true });
-   document.addEventListener('pointermove', event => {
-     if (!flowVersePress || flowVersePress.pointerId !== event.pointerId) return;
-     if (Math.hypot(event.clientX - flowVersePress.x, event.clientY - flowVersePress.y) > 12) finishFlowVersePress(event);
-   }, { passive: true });
-   document.addEventListener('pointerup', event => finishFlowVersePress(event, true), { passive: true });
-   document.addEventListener('pointercancel', event => finishFlowVersePress(event), { passive: true });
-   document.addEventListener('contextmenu', event => { if (event.target.closest?.('[data-flow-verse-card]')) event.preventDefault(); });
-    document.addEventListener('keydown', event => {
+     document.addEventListener('keydown', event => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); document.querySelector('#home-search, #archive-search')?.focus(); }
-       if (event.target.closest?.('[data-flow-verse-card]') && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); if (!event.repeat) refreshFlowVerse(); return; }
        const modal = document.querySelector('#modal-backdrop.open .modal');
       if (modal && event.key === 'Tab') {
         const focusable = [...modal.querySelectorAll('button, input, textarea, select, [href], [tabindex]:not([tabindex="-1"])')].filter(item => !item.disabled && item.offsetParent !== null);
@@ -2488,5 +2446,5 @@
    if (document.fonts?.ready) await document.fonts.ready;
    await render();
    await finishSplash();
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js?v=0.6.5-flow-review-2').catch(() => {});
+          if ('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js?v=0.6.5').catch(() => {});
  })();

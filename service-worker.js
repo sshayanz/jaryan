@@ -1,9 +1,9 @@
-const CACHE_NAME = 'jaryan-0.6.5-flow-review-2-shell';
+const CACHE_NAME = 'jaryan-0.6.5-shell';
 const SHELL = [
   './',
   './index.html',
-  './styles.css?v=0.6.5-flow-review-2',
-  './app.js?v=0.6.5-flow-review-2',
+  './styles.css?v=0.6.5',
+  './app.js?v=0.6.5',
   './search-worker.js',
   './manifest.webmanifest',
   './assets/icon.svg',
