@@ -1,9 +1,9 @@
-const CACHE_NAME = 'jaryan-0.6.5-shell';
+const CACHE_NAME = 'jaryan-0.7.0-account-db-shell';
 const SHELL = [
   './',
   './index.html',
-  './styles.css?v=0.6.5',
-  './app.js?v=0.6.5',
+  './styles.css?v=0.7.0-account-db',
+  './app.js?v=0.7.0-account-db',
   './search-worker.js',
   './manifest.webmanifest',
   './assets/icon.svg',

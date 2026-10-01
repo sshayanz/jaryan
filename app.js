@@ -1,8 +1,8 @@
 (async () => {
   'use strict';
 
-  const APP_VERSION = '0.6.5';
-  const APP_VERSION_FA = '۰.۶.۵';
+  const APP_VERSION = '0.7.0';
+  const APP_VERSION_FA = '۰.۷.۰';
   const app = document.getElementById('app');
   const bootStartedAt = performance.now();
   const API_BASE = String(window.JARYAN_API_BASE || '').replace(/\/$/, '');
@@ -359,6 +359,7 @@
      note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 4h14v16H5Z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
      chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19V5M4 19h16"/><path d="m7 15 3-4 3 2 4-6"/></svg>',
      refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.7-4L3 10"/><path d="M3 5v5h5"/><path d="M4 13a8 8 0 0 0 14.7 4L21 14"/><path d="M21 19v-5h-5"/></svg>',
+     calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>',
      close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m6 6 12 12M18 6 6 18"/></svg>'
   };
   const icon = name => icons[name] || '';
@@ -396,6 +397,7 @@
     }
   };
   Object.assign(translations.fa, {
+    register: 'ثبت نام',
     searchError: 'جست‌وجو آماده نشد؛ دوباره تلاش کن.',
       searchPrompt: 'هر چه در جستن آنی…',
     notFound: 'این صفحه پیدا نشد.',
@@ -419,35 +421,57 @@
     invalidMobile: 'Enter a valid mobile number.',
       copyUnavailable: 'Copy is unavailable in this browser.'
    });
-   Object.assign(translations.fa, {
-     accountDataConsent: 'با ثبت حساب، نام کاربری و اطلاعاتی که وارد می‌کنی همراه IP، کشور تقریبی و مشخصات مرورگر و دستگاه برای مدیریت سایت ذخیره می‌شود. گذرواژه و تاریخچهٔ خواندن ذخیره نمی‌شوند.',
-     consentRequired: 'برای ثبت حساب و ذخیرهٔ اطلاعات روی سرور، موافقت را انتخاب کن.',
-     jalaliDateHint: 'به‌شکل سال/ماه/روز شمسی، مانند ۱۴۰۵/۰۱/۰۱',
-      flowPopular: 'پربازدیدترین‌ها', flowPoets: 'شاعران', flowPoems: 'شعرها', flowFortunes: 'فال',
+     Object.assign(translations.fa, {
+       authManagementTitle: 'حساب کاربری',
+       authManagementLead: 'مدیریت شاعران، کتاب‌ها، اشعار، بیت‌ها',
+       authIntroLead: 'برای نگه‌داشتن شعرها و مسیر شعر خوانی خودت',
+       authIntroLogin: 'وارد شو', authIntroJoiner: 'یا', authIntroRegister: 'ثبت نام', authIntroSuffix: 'کن.',
+       displayNameRequired: 'نام نمایشی را وارد کن.', mobileRequired: 'شمارهٔ موبایل را وارد کن.',
+        rememberLogin: 'فقط نام کاربری را روی این دستگاه نگه‌دار', authConsent: 'با ذخیرهٔ اطلاعات حساب، علاقه‌مندی‌ها و خوانش‌ها روی سرور و ثبت IP و مشخصات کلی دستگاه برای مدیریت سایت موافقم.', authConsentRequired: 'برای ساخت حساب باید با ذخیرهٔ اطلاعات روی سرور موافقت کنی.',
+        usernameHint: 'حداقل ۳ نویسهٔ انگلیسی', usernameAvailable: 'این نام کاربری آزاد است.', usernameFormat: 'فقط حروف انگلیسی، عدد، نقطه، خط تیره و زیرخط',
+        captchaLabel: 'پاسخ کپچا', captchaWrong: 'پاسخ درست نیست؛ دوباره تلاش کن.',
+       showPassword: 'نمایش کلمهٔ عبور', hidePassword: 'پنهان کردن کلمهٔ عبور', welcomeTitle: 'به جریان خوش آمدید',
+       authIntro: 'برای نگه‌داشتن شعرها و مسیر شعر خوانی خودت وارد شو یا ثبت نام کن.',
+       accountCardArrow: '←',
+        accountDataConsent: 'اطلاعات حساب، علاقه‌مندی‌ها، مشاهده‌ها و اشتراک‌گذاری‌ها روی سرور ثبت می‌شوند. IP، کشور تقریبی و مشخصات دستگاه نیز برای مدیریت سایت ثبت می‌شود؛ گذرواژه فقط به‌صورت امن و هش‌شده نگه‌داری می‌شود.',
+       jalaliDateHint: 'به‌شکل سال/ماه/روز شمسی، مانند ۱۴۰۵/۰۱/۰۱',
+        localSyncNote: 'اطلاعات حساب و رفتار خواندن با رضایت تو در پایگاه‌دادهٔ سرور ذخیره می‌شود.',
+       flowPopular: 'پربازدیدترین‌ها', flowFavorites: 'محبوب‌ترین شعرها', flowYourTrail: 'مسیر شعرخوانی تو', flowFavoriteCount: 'پسند', flowPoets: 'شاعران', flowPoems: 'شعرها', flowFortunes: 'فال',
       flowHafez: 'فال حافظ', flowMolana: 'فال مولانا', flowTarot: 'فال تاروت', flowTarotSoon: 'هنوز راه‌اندازی نشده',
       flowShared: 'بیشترین اشتراک‌گذاری', flowSharedPoems: 'شعرها', flowSharedCouplets: 'بیت‌ها', flowRecent: 'تازه‌ترین‌ها',
         flowViewedCount: 'بازدید', flowSharedCount: 'اشتراک',
-      flowNoPopular: 'با بیشتر شدن بازدیدها، اینجا پربازدیدترین‌ها را می‌بینی.', flowNoShared: 'هنوز اشتراکی ثبت نشده است.', flowUnavailable: 'داده‌های آمار در دسترس نیست؛ سرور اختیاری را فعال کن.',
+       flowNoPopular: 'با بیشتر شدن بازدیدها، اینجا پربازدیدترین‌ها را می‌بینی.', flowNoShared: 'هنوز اشتراکی ثبت نشده است.', flowUnavailable: 'داده‌های آمار در دسترس نیست؛ اتصال به سرور را بررسی کن.',
       flowNoRecent: 'شاعر تازه‌ای به آرشیو اضافه نشده است.', flowLoading: 'در حال بارگذاری...', flowVerseLoading: 'در حال انتخاب یک بیت کوتاه...', flowVerseUnavailable: 'بارگذاری بیت شعر ممکن نشد.',
       flowFortuneAction: 'گرفتن فال', offlineSaved: 'شعر برای آفلاین آماده شد', offlineSaveFailed: 'ذخیرهٔ آفلاین انجام نشد؛ اتصال را بررسی کن.',
-     adminServerOnly: 'پنل مدیریت فقط با رمز تنظیم‌شده روی سرور باز می‌شود.', adminLoading: 'در حال دریافت اطلاعات اعضا...',
-     adminRefresh: 'به‌روزرسانی', adminDevices: 'دستگاه‌ها و نشست‌ها', adminIp: 'IP', adminCountry: 'کشور',
+      adminServerOnly: 'ورود ادمین با نام کاربری و گذرواژهٔ سرور انجام می‌شود.', adminLoading: 'در حال دریافت اطلاعات اعضا...',
+      adminRefresh: 'به‌روزرسانی', adminDevices: 'دستگاه‌ها و نشست‌ها', adminIp: 'IP', adminCountry: 'کشور', adminMemberFavorites: 'علاقه‌مندی', adminMemberViews: 'بازدید', adminMemberShares: 'اشتراک',
      adminPage: 'صفحه', adminNoServerData: 'هنوز داده‌ای روی سرور ثبت نشده است.', adminSyncError: 'دریافت اطلاعات سرور ممکن نشد.',
      adminLocalOnly: 'حساب‌های قدیمی که با رضایت سرور همگام نشده‌اند اینجا دیده نمی‌شوند.'
    });
-   Object.assign(translations.en, {
-     accountDataConsent: 'Creating an account stores your username and submitted profile details, plus IP, approximate country, browser and device details for site administration. Passwords and reading history are not stored on the server.',
-     consentRequired: 'Agree to server-side account records to create an account.',
-     jalaliDateHint: 'Persian calendar: year/month/day, for example 1405/01/01',
-      flowPopular: 'Most viewed', flowPoets: 'Poets', flowPoems: 'Poems', flowFortunes: 'Fortunes',
+     Object.assign(translations.en, {
+       authManagementTitle: 'User account',
+       authManagementLead: 'Manage poets, books, poems and verses',
+       authIntroLead: 'Keep your poems and reading journey',
+       authIntroLogin: 'sign in', authIntroJoiner: 'or', authIntroRegister: 'register', authIntroSuffix: '.',
+       displayNameRequired: 'Enter a display name.', mobileRequired: 'Enter a mobile number.',
+        rememberLogin: 'Remember only the username on this device', authConsent: 'I agree to server storage of my account, favorites and reading activity, plus recording of IP and general device details for site administration.', authConsentRequired: 'Agree to server storage to create an account.',
+        usernameHint: 'At least 3 English characters', usernameAvailable: 'This username is available.', usernameFormat: 'Use English letters, numbers, dot, hyphen or underscore',
+        captchaLabel: 'Captcha answer', captchaWrong: 'That answer is incorrect. Try again.',
+       showPassword: 'Show password', hidePassword: 'Hide password', welcomeTitle: 'Welcome to Jaryan',
+       authIntro: 'Sign in or register to keep your poems and reading journey.',
+       accountCardArrow: '→',
+        accountDataConsent: 'Account details, favorites, views and shares are stored on the server. IP, approximate country and device details are recorded for administration; passwords are stored only as secure hashes.',
+       jalaliDateHint: 'Persian calendar: year/month/day, for example 1405/01/01',
+        localSyncNote: 'Account details and reading activity are saved in the server database with your consent.',
+       flowPopular: 'Most viewed', flowFavorites: 'Most favorited poems', flowYourTrail: 'Your reading trail', flowFavoriteCount: 'favorites', flowPoets: 'Poets', flowPoems: 'Poems', flowFortunes: 'Fortunes',
       flowHafez: 'Hafez fortune', flowMolana: 'Molana fortune', flowTarot: 'Tarot reading', flowTarotSoon: 'Not available yet',
       flowShared: 'Most shared', flowSharedPoems: 'Poems', flowSharedCouplets: 'Couplets', flowRecent: 'Recently added poets',
         flowViewedCount: 'views', flowSharedCount: 'shares',
-      flowNoPopular: 'As more poems are read, the most-viewed items will appear here.', flowNoShared: 'Nothing has been shared yet.', flowUnavailable: 'Statistics are unavailable. Enable the optional server.',
+       flowNoPopular: 'As more poems are read, the most-viewed items will appear here.', flowNoShared: 'Nothing has been shared yet.', flowUnavailable: 'Statistics are unavailable. Check the server connection.',
       flowNoRecent: 'No poets have been added recently.', flowLoading: 'Loading...', flowVerseLoading: 'Choosing a short verse...', flowVerseUnavailable: 'Could not load a verse.',
       flowFortuneAction: 'Draw a fortune', offlineSaved: 'Poem is ready offline', offlineSaveFailed: 'Could not save offline. Check your connection.',
-     adminServerOnly: 'Admin access uses a password configured on the server.', adminLoading: 'Loading member records...',
-     adminRefresh: 'Refresh', adminDevices: 'Devices and sessions', adminIp: 'IP', adminCountry: 'Country',
+      adminServerOnly: 'Admin signs in with the server username and password.', adminLoading: 'Loading member records...',
+      adminRefresh: 'Refresh', adminDevices: 'Devices and sessions', adminIp: 'IP', adminCountry: 'Country', adminMemberFavorites: 'favorites', adminMemberViews: 'views', adminMemberShares: 'shares',
      adminPage: 'Page', adminNoServerData: 'No records are stored on the server yet.', adminSyncError: 'Could not load server records.',
      adminLocalOnly: 'Older accounts that have not consented to server sync are not listed here.'
    });
@@ -585,7 +609,7 @@
      const parts = jalaliParts(new Date(`${gregorian[1]}-${gregorian[2]}-${gregorian[3]}T00:00:00Z`));
      return `${parts.year}/${parts.month}/${parts.day}`;
    };
-   const validJalaliDate = value => {
+    const validJalaliDate = value => {
      if (!value) return true;
      const match = jalaliDateValue(value).match(/^((?:13|14)\d{2})\/([0-1]\d)\/([0-3]\d)$/);
      if (!match) return false;
@@ -598,8 +622,18 @@
        const parts = jalaliParts(new Date(start + offset * 86400000));
        if (parts.year === year && parts.month === month && parts.day === day) return true;
      }
-     return false;
-   };
+      return false;
+    };
+    const jalaliMonthDates = (year, month) => {
+      const start = Date.UTC(year + 621, 0, 1);
+      const dates = [];
+      for (let offset = 0; offset < 430; offset += 1) {
+        const date = new Date(start + offset * 86400000);
+        const parts = jalaliParts(date);
+        if (Number(parts.year) === year && Number(parts.month) === month) dates.push(date);
+      }
+      return dates;
+    };
   const usernameKey = value => String(value ?? '').trim().normalize('NFKC').toLocaleLowerCase('fa-IR');
   const ADMIN_USERNAME = 'admin';
   let adminSession = false;
@@ -612,8 +646,10 @@
   let account = storedAccount && typeof storedAccount === 'object'
     ? { name: '', mobile: '', username: '', role: 'user', ...storedAccount, loggedIn: Boolean(storedAccount.loggedIn !== false && (storedAccount.username || storedAccount.mobile || storedAccount.role === 'admin')) }
     : { name: profile, mobile: '', username: '', role: 'user', loggedIn: false };
-  let authUsers = readJSON('jaryan-auth-users', {});
-  authUsers = authUsers && typeof authUsers === 'object' && !Array.isArray(authUsers) ? authUsers : {};
+  localStorage.removeItem('jaryan-auth-users');
+  const rememberedCredentials = readJSON('jaryan-remembered-login', {});
+  if (rememberedCredentials?.passwordHash) localStorage.setItem('jaryan-remembered-login', JSON.stringify({ username: rememberedCredentials.username || '' }));
+  const validUsername = value => /^[A-Za-z0-9_.-]{3,60}$/.test(String(value || '').trim());
   let feedbackHistory = readJSON('jaryan-feedback-history', []);
   feedbackHistory = Array.isArray(feedbackHistory) ? feedbackHistory : [];
   if (profile === 'خوانندهٔ جریان' || profile === 'خواننده جریان') {
@@ -631,12 +667,15 @@
   let offlinePoems = new Set(readJSON('jaryan-offline-poems', []));
   let notes = readJSON('jaryan-notes', {});
   let readingHistory = readJSON('jaryan-history', []);
-  const state = {
+   const currentJalali = jalaliParts(new Date());
+   const state = {
     page: 'home', poetId: null, bookId: null, poemId: null, query: '', poet: 'همه', book: 'همه',
-      genre: 'all', archiveType: 'all', searchCommitted: false, searchError: false, limit: 24, active: null, favoriteTab: 'poems', accountTab: 'overview', favoriteShelfExpanded: { poems: false, verses: false, poets: false }, recentExpanded: false, authMode: 'login', homePeopleExpanded: false, flowPopular: [], flowPopularPoets: [], flowSharedPoets: [], flowSharedPoems: [], flowSharedCouplets: [], flowLoaded: false, flowLoading: false, flowError: false, flowVerse: null, flowVerseLoading: false, flowVerseRequested: false, adminData: null, adminError: '', adminLoading: false,
-     update: { status: 'idle', remoteVersion: '', cacheStatus: 'unknown', checkedAt: null }
-  };
-  let focusIndex = 0;
+      genre: 'all', archiveType: 'all', searchCommitted: false, searchError: false, limit: 24, active: null, favoriteTab: 'poems', accountTab: 'overview', favoriteShelfExpanded: { poems: false, verses: false, poets: false }, recentExpanded: false, authMode: 'login', homePeopleExpanded: false, flowPopular: [], flowPopularPoets: [], flowSharedPoets: [], flowSharedPoems: [], flowSharedCouplets: [], flowLoaded: false, flowLoading: false, flowError: false, flowVerse: null, flowVerseLoading: false, flowVerseRequested: false, adminData: null, adminError: '', adminLoading: false, settingsUpdateOpen: false,
+      update: { status: 'idle', remoteVersion: '', cacheStatus: 'unknown', checkedAt: null },
+      jalaliPicker: { year: Number(currentJalali.year), month: Number(currentJalali.month) }
+   };
+   state.flowFavorites = [];
+   let focusIndex = 0;
 
    const localDayKey = () => {
      const date = new Date();
@@ -695,27 +734,51 @@
      }
    };
 
-  const savedUser = await userDB.load();
-  if (savedUser) {
-    account = { ...account, ...(savedUser.account || {}), loggedIn: savedUser.account?.loggedIn !== false && account.loggedIn !== false };
-    profile = account.loggedIn ? account.name || savedUser.profile || profile : '';
+   const serverRequest = async (path, payload, method = 'POST') => {
+     const response = await fetch(`${API_BASE}/api/v1${path}`, {
+       method,
+       headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
+       credentials: 'include',
+       ...(method === 'GET' ? {} : { body: JSON.stringify(payload || {}) }),
+       cache: 'no-store'
+     });
+     const data = await response.json().catch(() => ({}));
+     if (!response.ok) throw new Error(data.error || `Request failed: ${response.status}`);
+     return data;
+   };
+   const savedUser = await userDB.load();
+   if (savedUser) {
+     account = { ...account, ...(savedUser.account || {}), loggedIn: savedUser.account?.loggedIn !== false && account.loggedIn !== false };
+     profile = account.loggedIn ? account.name || savedUser.profile || profile : '';
     favorites = new Set(savedUser.favorites || [...favorites]);
     poetFavorites = new Set(savedUser.poetFavorites || [...poetFavorites]);
     bookFavorites = new Set(savedUser.bookFavorites || [...bookFavorites]);
     coupletFavorites = new Set(savedUser.coupletFavorites || [...coupletFavorites]);
-    notes = savedUser.notes || notes;
-    readingHistory = savedUser.history || readingHistory;
-  }
-  if (account?.role === 'admin') {
-    try {
-      const response = await fetch(`${API_BASE}/api/v1/admin/session`, { credentials: 'include', cache: 'no-store' });
-      adminSession = response.ok && Boolean((await response.json()).authenticated);
-    } catch { adminSession = false; }
-  }
-  if (account.loggedIn && !isAdminAccount() && !authUsers[usernameKey(account.username)]) {
-    account = { ...account, loggedIn: false };
-    profile = '';
-  }
+     notes = savedUser.notes || notes;
+     readingHistory = savedUser.history || readingHistory;
+   }
+   account = { ...account, loggedIn: false, role: 'user' };
+   try {
+     const session = await serverRequest('/auth/session', undefined, 'GET');
+     if (session.authenticated && session.account) {
+       account = { ...session.account, name: session.account.displayName, loggedIn: true };
+       adminSession = session.account.role === 'admin';
+       profile = account.displayName || account.username;
+       if (session.account.role === 'user') {
+         const data = await serverRequest('/auth/data', undefined, 'GET');
+         account = { ...data.account, name: data.account.displayName, loggedIn: true };
+         favorites = new Set(data.favorites.poem || []);
+         coupletFavorites = new Set(data.favorites.couplet || []);
+         poetFavorites = new Set(data.favorites.poet || []);
+         bookFavorites = new Set(data.favorites.book || []);
+         readingHistory = data.history || [];
+       }
+     } else profile = '';
+   } catch {
+     account = { ...account, loggedIn: false, role: 'user' };
+     adminSession = false;
+     profile = '';
+   }
   const saveUserData = () => userDB.save({
     profile,
     account,
@@ -726,22 +789,11 @@
     notes,
     history: readingHistory
   });
-  const saveAuthUsers = () => localStorage.setItem('jaryan-auth-users', JSON.stringify(authUsers));
-  const saveFeedbackHistory = () => localStorage.setItem('jaryan-feedback-history', JSON.stringify(feedbackHistory.slice(-100)));
-  const hashSecret = async value => {
-    const source = String(value ?? '');
-    if (globalThis.crypto?.subtle) {
-      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(source));
-      return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
-    }
-    let hash = 2166136261;
-    for (const char of source) hash = Math.imul(hash ^ char.codePointAt(0), 16777619);
-    return `fallback-${(hash >>> 0).toString(16)}`;
-  };
-  const isAuthenticated = () => Boolean(account?.loggedIn && (isAdminAccount() || authUsers[usernameKey(account?.username)]));
-  const currentUserRecord = () => authUsers[usernameKey(account?.username)] || null;
-  const accountLabel = () => isAdminAccount() ? tr('admin') : tr('account');
-  const rememberLogin = (username, passwordHash) => localStorage.setItem('jaryan-remembered-login', JSON.stringify({ username, passwordHash }));
+   const saveFeedbackHistory = () => localStorage.setItem('jaryan-feedback-history', JSON.stringify(feedbackHistory.slice(-100)));
+   const isAuthenticated = () => Boolean(account?.loggedIn && (isAdminAccount() || account?.id));
+   const currentUserRecord = () => account?.loggedIn ? account : null;
+   const accountLabel = () => isAdminAccount() ? tr('admin') : tr('account');
+   const rememberLogin = username => localStorage.setItem('jaryan-remembered-login', JSON.stringify({ username }));
   const clearRememberedLogin = () => localStorage.removeItem('jaryan-remembered-login');
   const recordFeedback = record => {
     feedbackHistory = [...feedbackHistory, { id: globalThis.crypto?.randomUUID?.() || String(Date.now()), ...record }].slice(-100);
@@ -760,18 +812,6 @@
     touchPoints: navigator.maxTouchPoints || 0,
     referrer: document.referrer || ''
   });
-  const serverRequest = async (path, payload, method = 'POST') => {
-    const response = await fetch(`${API_BASE}/api/v1${path}`, {
-      method,
-      headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      ...(method === 'GET' ? {} : { body: JSON.stringify(payload || {}) }),
-      cache: 'no-store'
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error || `Request failed: ${response.status}`);
-    return data;
-  };
   const getDeviceId = () => {
     let value = localStorage.getItem('jaryan-device-id');
     if (!value) {
@@ -780,20 +820,19 @@
     }
     return value;
   };
-  const syncAccountToServer = async (source = currentUserRecord()) => {
-    if (!source?.consentAt || !source.localId) return false;
-    const result = await serverRequest('/members/sync', {
-      localId: source.localId, username: source.username, displayName: source.displayName || source.username,
-      email: source.email || '', mobile: source.mobile || '', birthDate: source.birthDate || '', consentAt: source.consentAt,
-      deviceId: getDeviceId(), device: deviceInfo()
-    });
-    const key = usernameKey(source.username);
-    authUsers[key] = { ...source, remoteId: result.member?.id || source.remoteId, remoteSyncedAt: new Date().toISOString() };
-    account = { ...account, remoteId: authUsers[key].remoteId, remoteSyncedAt: authUsers[key].remoteSyncedAt };
-    saveAuthUsers();
-    saveUserData();
-    return true;
-  };
+   const loadServerAccountData = async () => {
+     const data = await serverRequest('/auth/data', undefined, 'GET');
+     account = { ...data.account, name: data.account.displayName, loggedIn: true };
+     favorites = new Set(data.favorites.poem || []);
+     coupletFavorites = new Set(data.favorites.couplet || []);
+     poetFavorites = new Set(data.favorites.poet || []);
+     bookFavorites = new Set(data.favorites.book || []);
+     readingHistory = data.history || [];
+     saveUserData();
+   };
+   const syncFavorite = (type, id, active) => {
+     if (isAuthenticated() && !isAdminAccount()) serverRequest('/auth/favorites', { type, id, active }).catch(() => {});
+   };
   const submitFeedback = async (message, category) => serverRequest('/feedback', {
     memberId: isAuthenticated() && !isAdminAccount() ? account?.remoteId || '' : '',
     message, category, page: location.hash || '#home', device: deviceInfo()
@@ -887,13 +926,23 @@
     modalTrigger?.focus?.();
     modalTrigger = null;
   };
-  const showToast = message => {
+  const showToast = (message, type = '') => {
     const toast = document.getElementById('toast');
     if (!toast) return;
     toast.textContent = message;
+    toast.classList.toggle('error', type === 'error');
     toast.classList.add('show');
     clearTimeout(showToast.timer);
     showToast.timer = setTimeout(() => toast.classList.remove('show'), 1500);
+  };
+  const showWelcome = () => {
+    const overlay = document.createElement('div');
+    overlay.className = 'welcome-overlay';
+    overlay.setAttribute('role', 'status');
+    overlay.setAttribute('aria-live', 'polite');
+    overlay.innerHTML = `<div class="welcome-glass"><span>${icon('brand')}</span><h1>${tr('welcomeTitle')}</h1></div>`;
+    document.body.append(overlay);
+    setTimeout(() => overlay.remove(), 2000);
   };
   const setFabOpen = (open, root = null) => {
     const fab = root || document.querySelector('.poem-fab');
@@ -1583,12 +1632,24 @@
      return `<div class="account-stats-grid"><div class="stat-card glass"><strong>${fa(todayCount)}</strong><span>${tr('today')}</span></div><div class="stat-card glass"><strong>${fa(monthCount)}</strong><span>${tr('month')}</span></div><div class="stat-card glass"><strong>${fa(readingHistory.length)}</strong><span>${tr('total')}</span></div></div><section class="reading-card glass"><div class="section-head"><div><p class="eyebrow">${tr('readingChart')}</p><h2>${tr('lastSevenDays')}</h2></div></div>${readingChart()}</section><section class="saved-section"><div class="section-head"><div><p class="eyebrow">${tr('saved')}</p><h2>${tr('saved')}</h2></div></div><div class="tabs"><button class="tab ${tab === 'poems' ? 'active' : ''}" data-favorite-tab="poems">${tr('saved')} · ${fa(favorites.size)}</button><button class="tab ${tab === 'poets' ? 'active' : ''}" data-favorite-tab="poets">${tr('poets')} · ${fa(poetFavorites.size)}</button><button class="tab ${tab === 'couplets' ? 'active' : ''}" data-favorite-tab="couplets">${lang === 'fa' ? 'بیت‌ها' : 'Verses'} · ${fa(coupletFavorites.size)}</button></div><div class="history-list account-items">${items || `<div class="empty">${tr('empty')}</div>`}</div></section><section class="history-section"><div class="section-head account-history-heading"><div><p class="eyebrow">${tr('history')}</p><h2>${tr('history')}</h2><p>${fa(recent.length)} ${lang === 'fa' ? 'آخرین خوانش' : 'recent reads'}</p></div><button class="button secondary" data-clear-history>${lang === 'fa' ? 'پاک کردن' : 'Clear'}</button></div><div class="history-list">${history || `<div class="empty">${tr('empty')}</div>`}</div></section>`;
    };
 
-   const authView = () => {
-    const isRegister = state.authMode === 'register';
-    const remembered = readJSON('jaryan-remembered-login', {});
-    const rememberedUsername = remembered?.username || '';
-    return `<section class="page account-page auth-page"><div class="page-hero"><p class="eyebrow">${tr('account')}</p><h1>${isRegister ? tr('register') : tr('login')}</h1><p>${tr('authIntro')}</p></div><section class="auth-card glass"><div class="auth-tabs" role="tablist"><button class="auth-tab ${!isRegister ? 'active' : ''}" data-auth-mode="login" role="tab" aria-selected="${!isRegister}">${tr('login')}</button><button class="auth-tab ${isRegister ? 'active' : ''}" data-auth-mode="register" role="tab" aria-selected="${isRegister}">${tr('register')}</button></div><div class="auth-form"><label class="register-label" for="auth-username">${tr('username')}</label><input class="field" id="auth-username" value="${escapeHTML(isRegister ? '' : rememberedUsername)}" minlength="3" maxlength="60" autocomplete="username" placeholder="${tr('usernamePlaceholder')}"><label class="register-label" for="auth-password">${tr('password')}</label><input class="field" id="auth-password" type="password" minlength="5" maxlength="120" autocomplete="${isRegister ? 'new-password' : 'current-password'}" placeholder="${tr('passwordPlaceholder')}"><label class="remember-line"><input type="checkbox" id="auth-remember" ${rememberedUsername && !isRegister ? 'checked' : ''}><span>${tr('rememberLogin')}</span></label><button class="button auth-submit" data-auth-submit>${isRegister ? tr('authSubmitRegister') : tr('authSubmitLogin')}</button></div><div class="sms-login" aria-disabled="true"><div class="sms-login-head"><strong>${tr('mobileLogin')}</strong><span>${tr('mobileSoon')}</span></div><div class="sms-login-row"><input class="field" type="tel" disabled placeholder="${tr('mobilePlaceholder')}"><button class="button secondary" disabled>${tr('sendCode')}</button></div><p>${tr('smsNotice')}</p></div></section></section>`;
-   };
+     const authView = () => {
+      const isRegister = state.authMode === 'register';
+      const remembered = readJSON('jaryan-remembered-login', {});
+      const rememberedUsername = remembered?.username || '';
+       const captchaMode = Math.floor(Math.random() * 3);
+       const captchaLeft = captchaMode === 2 ? Math.floor(Math.random() * 8) + 2 : Math.floor(Math.random() * 90) + 10;
+       const captchaRight = captchaMode === 2 ? Math.floor(Math.random() * 8) + 2 : Math.floor(Math.random() * 9) + 1;
+       const captchaOperator = captchaMode === 0 ? '+' : captchaMode === 1 ? '−' : '×';
+       state.authCaptchaAnswer = isRegister ? (captchaMode === 0 ? captchaLeft + captchaRight : captchaMode === 1 ? captchaLeft - captchaRight : captchaLeft * captchaRight) : null;
+       state.authCaptchaQuestion = `${fa(captchaLeft)} ${captchaOperator} ${fa(captchaRight)} =`;
+      const registrationFields = isRegister
+        ? `<label class="floating-field" for="auth-display-name"><input class="field" id="auth-display-name" maxlength="80" autocomplete="name" inputmode="text" lang="fa-IR" dir="rtl" placeholder=" "><span>${tr('displayName')}</span></label><label class="floating-field" for="auth-mobile"><input class="field" id="auth-mobile" type="tel" maxlength="24" autocomplete="tel" inputmode="tel" placeholder=" "><span>${tr('mobile')}</span></label>`
+        : '';
+      const captchaField = isRegister
+        ? `<div class="auth-captcha-row"><label class="floating-field" for="auth-captcha"><input class="field" id="auth-captcha" inputmode="numeric" autocomplete="off" placeholder=" "><span>${tr('captchaLabel')}</span></label><span class="auth-captcha-equation" aria-label="${tr('captchaLabel')}">${fa(captchaLeft)} + ${fa(captchaRight)} =</span></div>`
+        : '';
+      return `<section class="page account-page auth-page"><div class="auth-layout"><header class="auth-story"><h1>${tr('authManagementTitle')}</h1><p class="auth-story-lead">${tr('authManagementLead')}</p><p class="auth-story-copy">${tr('authIntroLead')} <strong>${tr('authIntroLogin')}</strong> ${tr('authIntroJoiner')} <strong>${tr('authIntroRegister')}</strong> ${tr('authIntroSuffix')}</p></header><section class="auth-card glass"><div class="auth-tabs" role="tablist"><button class="auth-tab ${!isRegister ? 'active' : ''}" data-auth-mode="login" role="tab" aria-selected="${!isRegister}">${tr('login')}</button><button class="auth-tab ${isRegister ? 'active' : ''}" data-auth-mode="register" role="tab" aria-selected="${isRegister}">${tr('register')}</button></div><div class="auth-form">${registrationFields}<div class="auth-username-field ${isRegister ? 'is-register' : ''}"><label class="floating-field" for="auth-username"><input class="field" id="auth-username" value="${escapeHTML(isRegister ? '' : rememberedUsername)}" minlength="3" maxlength="60" autocomplete="username" ${isRegister ? 'inputmode="text" lang="en" dir="ltr" autocapitalize="none" spellcheck="false"' : ''} placeholder=" "><span>${tr('username')}</span></label>${isRegister ? `<span class="auth-username-status" data-auth-username-status aria-live="polite"></span><small class="auth-field-hint">${tr('usernameHint')}</small>` : ''}</div><div class="auth-password-wrap"><label class="floating-field" for="auth-password"><input class="field" id="auth-password" type="password" minlength="5" maxlength="120" autocomplete="${isRegister ? 'new-password' : 'current-password'}" placeholder=" "><span>${tr('password')}</span></label><button type="button" class="auth-password-toggle" data-toggle-auth-password aria-label="${tr('showPassword')}" title="${tr('showPassword')}" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg></button></div>${captchaField}${!isRegister ? `<label class="remember-line"><input type="checkbox" id="auth-remember" ${rememberedUsername ? 'checked' : ''}><span>${tr('rememberLogin')}</span></label>` : ''}<button class="button auth-submit" data-auth-submit>${isRegister ? tr('authSubmitRegister') : tr('authSubmitLogin')}</button></div><div class="sms-login" aria-disabled="true"><div class="sms-login-head"><strong>${tr('mobileLogin')}</strong></div><div class="sms-login-row"><input class="field" type="tel" disabled placeholder="${tr('mobilePlaceholder')}"><button class="button secondary" disabled>${tr('sendCode')}</button></div></div></section></div></section>`;
+     };
    const accountOfflineV65 = () => {
      const item = poem => `<article class="offline-item glass" data-poem="${escapeHTML(idOf(poem))}"><span><strong>${escapeHTML(poemDisplayTitle(poem))}</strong><small>${escapeHTML(poetName(peopleById[poem.poetId] || { i: poem.poetId, n: poem.poetName }))}</small></span><button type="button" class="button secondary" data-offline-poem="${escapeHTML(idOf(poem))}">${offlinePoems.has(idOf(poem)) ? tr('offlineRemove') : tr('offlineAdd')}</button></article>`;
      const saved = [...offlinePoems].map(id => poems.find(poem => idOf(poem) === id)).filter(Boolean);
@@ -1606,13 +1667,13 @@
          const specs = [detail.platform, detail.language, detail.timezone, detail.screenWidth && detail.screenHeight ? `${detail.screenWidth}×${detail.screenHeight}` : ''].filter(Boolean).join(' · ');
          return `<li><strong>${tr('adminIp')}:</strong> <code dir="ltr">${escapeHTML(device.ip || '—')}</code> · <strong>${tr('adminCountry')}:</strong> ${escapeHTML(device.country || '—')}<br><small>${escapeHTML(formatDate(device.lastSeenAt))} · ${escapeHTML(specs)}<br>${escapeHTML(device.userAgent || '')}</small></li>`;
        }).join('');
-       return `<article class="admin-user-card glass" data-server-member="${escapeHTML(member.id)}"><header class="admin-user-card-head"><div class="admin-user-identity"><span class="admin-avatar">${escapeHTML(Array.from(member.displayName || member.username)[0] || '?')}</span><div><strong>${escapeHTML(member.displayName)}</strong><small dir="ltr">@${escapeHTML(member.username)}</small></div></div></header><div class="admin-user-meta"><span>${lang === 'fa' ? 'ثبت‌نام' : 'Joined'} · ${formatDate(member.createdAt)}</span><span>${lang === 'fa' ? 'آخرین حضور' : 'Last seen'} · ${formatDate(member.lastSeenAt)}</span></div><div class="admin-user-fields"><label>${tr('displayName')}<input class="field" data-server-field="displayName" value="${escapeHTML(member.displayName || '')}"></label><label>${tr('email')}<input class="field" data-server-field="email" type="email" value="${escapeHTML(member.email || '')}"></label><label>${tr('mobile')}<input class="field" data-server-field="mobile" type="tel" value="${escapeHTML(member.mobile || '')}"></label><label>${tr('birthDate')}<input class="field jalali-date" data-server-field="birthDate" inputmode="numeric" dir="ltr" placeholder="YYYY/MM/DD" value="${escapeHTML(jalaliDateValue(member.birthDate || ''))}"></label></div><button type="button" class="button secondary" data-server-member-save>${tr('adminSaveUser')}</button><details class="admin-device-details"><summary>${tr('adminDevices')} · ${fa(member.devices.length)}</summary><ul>${devices || `<li>—</li>`}</ul></details></article>`;
+       return `<article class="admin-user-card glass" data-server-member="${escapeHTML(member.id)}"><header class="admin-user-card-head"><div class="admin-user-identity"><span class="admin-avatar">${escapeHTML(Array.from(member.displayName || member.username)[0] || '?')}</span><div><strong>${escapeHTML(member.displayName)}</strong><small dir="ltr">@${escapeHTML(member.username)}</small></div></div></header><div class="admin-user-meta"><span>${lang === 'fa' ? 'ثبت‌نام' : 'Joined'} · ${formatDate(member.createdAt)}</span><span>${lang === 'fa' ? 'آخرین حضور' : 'Last seen'} · ${formatDate(member.lastSeenAt)}</span><span>${fa(member.favoritesCount)} ${tr('adminMemberFavorites')}</span><span>${fa(member.viewsCount)} ${tr('adminMemberViews')}</span><span>${fa(member.sharesCount)} ${tr('adminMemberShares')}</span></div><div class="admin-user-fields"><label>${tr('displayName')}<input class="field" data-server-field="displayName" value="${escapeHTML(member.displayName || '')}"></label><label>${tr('email')}<input class="field" data-server-field="email" type="email" value="${escapeHTML(member.email || '')}"></label><label>${tr('mobile')}<input class="field" data-server-field="mobile" type="tel" value="${escapeHTML(member.mobile || '')}"></label><label>${tr('birthDate')}<input class="field jalali-date" data-server-field="birthDate" inputmode="numeric" dir="ltr" placeholder="YYYY/MM/DD" value="${escapeHTML(jalaliDateValue(member.birthDate || ''))}"></label></div><button type="button" class="button secondary" data-server-member-save>${tr('adminSaveUser')}</button><details class="admin-device-details"><summary>${tr('adminDevices')} · ${fa(member.devices.length)}</summary><ul>${devices || `<li>—</li>`}</ul></details></article>`;
      }).join('');
      const feedbackCards = data.feedback.map(item => `<article class="admin-feedback-card"><div class="admin-feedback-meta"><span class="feedback-status">${escapeHTML(item.category)}</span><time>${formatDate(item.createdAt)}</time></div><p>${escapeHTML(item.message)}</p><small>${escapeHTML(item.username ? `@${item.username}` : (lang === 'fa' ? 'مهمان' : 'Guest'))} · ${tr('adminPage')}: ${escapeHTML(item.page || '—')}${item.ip ? ` · ${tr('adminIp')}: ${escapeHTML(item.ip)}` : ''}${item.country ? ` · ${tr('adminCountry')}: ${escapeHTML(item.country)}` : ''}</small></article>`).join('');
      const views = data.views.map(item => `<li><span dir="ltr">${escapeHTML(item.poemId)}</span><strong>${fa(item.views)}</strong></li>`).join('');
      return `<section class="page admin-page"><div class="admin-workspace">${head}<div class="admin-kpis"><article class="admin-kpi glass"><strong>${fa(data.summary.members)}</strong><span>${tr('adminUsers')}</span></article><article class="admin-kpi glass"><strong>${fa(data.summary.active7Days)}</strong><span>${tr('adminActive')}</span></article><article class="admin-kpi glass"><strong>${fa(data.summary.feedback)}</strong><span>${tr('adminFeedback')}</span></article></div><div class="admin-workspace-grid"><section class="admin-panel-section"><div class="admin-section-head"><h2>${tr('adminUsers')}</h2></div><div class="admin-user-list">${memberCards || `<div class="empty">${tr('adminNoServerData')}</div>`}</div></section><aside class="admin-side-stack"><section class="admin-panel-section admin-inbox"><div class="admin-section-head"><h2>${tr('adminFeedback')}</h2></div><div class="admin-feedback-list">${feedbackCards || `<div class="empty">${tr('adminNoFeedback')}</div>`}</div></section><section class="admin-panel-section"><div class="admin-section-head"><h2>${tr('flowPopular')}</h2></div><ul class="admin-view-list">${views || `<li>${tr('flowNoPopular')}</li>`}</ul></section></aside></div></div></section>`;
    };
-   const adminView = () => {
+    const adminView = () => { return adminServerView();
     const users = Object.entries(authUsers).map(([key, user]) => ({ ...user, key })).filter(user => user.role !== 'admin').sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
     const queue = readJSON('jaryan-feedback-outbox', []);
     const knownFeedback = new Set(feedbackHistory.map(item => `${item.message}|${item.createdAt}`));
@@ -1620,7 +1681,7 @@
     const active = users.filter(user => user.lastSeenAt && Date.now() - new Date(user.lastSeenAt).getTime() < 7 * 86400000).length;
     return `<section class="page admin-page"><div class="page-hero admin-hero"><p class="eyebrow">${tr('admin')}</p><h1>${tr('admin')}</h1><p>${tr('adminLocalNotice')}</p></div><div class="admin-dashboard"><div class="admin-overview"><div class="admin-stat glass"><strong>${fa(users.length)}</strong><span>${tr('adminUsers')}</span></div><div class="admin-stat glass"><strong>${fa(users.filter(user => user.createdAt).length)}</strong><span>${tr('adminRegistrations')}</span></div><div class="admin-stat glass"><strong>${fa(active)}</strong><span>${tr('adminActive')}</span></div></div><section class="admin-section"><div class="section-head"><div><p class="eyebrow">${tr('adminUsers')}</p><h2>${tr('adminUserEdit')}</h2></div></div><div class="admin-users">${users.length ? users.map(user => `<article class="admin-user-row glass" data-admin-user="${escapeHTML(user.key)}"><div class="admin-user-heading"><strong>${escapeHTML(user.username)}</strong><small>${formatDate(user.createdAt)}</small></div><div class="admin-user-fields"><label>${tr('displayName')}<input class="field" data-admin-field="displayName" value="${escapeHTML(user.displayName || user.username)}"></label><label>${tr('email')}<input class="field" data-admin-field="email" type="email" value="${escapeHTML(user.email || '')}"></label><label>${tr('mobile')}<input class="field" data-admin-field="mobile" type="tel" value="${escapeHTML(user.mobile || '')}"></label><label>${tr('birthDate')}<input class="field" data-admin-field="birthDate" type="date" value="${escapeHTML(user.birthDate || '')}"></label></div><button class="button secondary admin-save-user" data-admin-save-user>${tr('adminSaveUser')}</button></article>`).join('') : `<div class="empty">${tr('adminNoUsers')}</div>`}</div></section><section class="admin-section"><div class="section-head"><div><p class="eyebrow">${tr('adminFeedback')}</p><h2>${tr('adminFeedback')}</h2></div><button class="button secondary" data-admin-clear-feedback>${tr('adminFeedbackClear')}</button></div><div class="admin-feedback-list">${feedback.length ? feedback.slice(0, 20).map(item => `<article class="admin-feedback-item glass"><div><strong>${escapeHTML(item.category || 'general')}</strong><small>${formatDate(item.createdAt)} · ${escapeHTML(item.username || item.name || tr('account'))}</small></div><p>${escapeHTML(item.message || '')}</p><span class="feedback-status ${item.status === 'queued' ? 'queued' : ''}">${item.status === 'queued' ? (lang === 'fa' ? 'در صف' : 'Queued') : (lang === 'fa' ? 'ارسال‌شده' : 'Sent')}</span></article>`).join('') : `<div class="empty">${tr('adminNoFeedback')}</div>`}</div></section><div class="admin-actions"><button class="button" data-admin-export>${icon('download')}${tr('adminExportAll')}</button><button class="button secondary" data-logout>${tr('accountLogout')}</button></div></div></section>`;
    };
-   const adminWorkspaceView = () => {
+    const adminWorkspaceView = () => { return adminServerView();
      const users = Object.entries(authUsers).map(([key, user]) => ({ ...user, key })).filter(user => user.role !== 'admin').sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
      const queue = readJSON('jaryan-feedback-outbox', []);
      const knownFeedback = new Set(feedbackHistory.map(item => `${item.message}|${item.createdAt}`));
@@ -1657,14 +1718,23 @@
           ...state.flowPopularPoets.map(item => ({ kind: 'poet', item, count: item.views })),
           ...state.flowPopular.map(item => ({ kind: 'poem', item, count: item.views }))
         ].sort((a, b) => b.count - a.count);
-        const popularCards = popularItems.map(({ kind, item, count }, index) => {
+         const popularCards = popularItems.map(({ kind, item, count }, index) => {
           if (kind === 'poet') {
             const person = peopleById[item.poetId];
             return person ? personCard(person, count, tr('flowViewedCount'), index + 1) : '';
           }
           const poem = poems.find(candidate => idOf(candidate) === item.poemId);
           return poem ? poemCard(poem, count, tr('flowViewedCount'), index + 1) : '';
-        }).join('');
+         }).join('');
+         const favoriteCards = state.flowFavorites.map((item, index) => {
+           const poem = poems.find(candidate => idOf(candidate) === item.poemId);
+           return poem ? poemCard(poem, item.favorites, tr('flowFavoriteCount'), index + 1, 'flow-favorite-card') : '';
+         }).join('');
+         const trailIds = isAuthenticated() ? [...new Set([...favorites, ...readingHistory.map(item => item.id)])].slice(0, 12) : [];
+         const trailCards = trailIds.map((id, index) => {
+           const poem = poems.find(candidate => idOf(candidate) === id);
+           return poem ? poemCard(poem, index + 1, tr('flowYourTrail'), index + 1, 'flow-your-trail-card') : '';
+         }).join('');
         const sharedItems = [
           ...state.flowSharedPoets.map(item => ({ kind: 'poet', item, count: item.shares })),
           ...state.flowSharedPoems.map(item => ({ kind: 'poem', item, count: item.shares })),
@@ -1703,7 +1773,7 @@
         const verseBanner = verse
           ? `<button type="button" class="flow-verse-banner" data-flow-verse-card><span class="flow-verse-quote">${verseLines}</span><small class="flow-verse-attribution">${escapeHTML(verse.poetName)} · ${escapeHTML(verse.poemTitle)}</small></button>`
           : `<button type="button" class="flow-verse-banner flow-verse-loading" data-flow-verse-card><span>${state.flowVerseLoading || !state.flowVerseRequested ? tr('flowVerseLoading') : tr('flowVerseUnavailable')}</span></button>`;
-        return `<section class="page flow-page"><header class="flow-page-head">${verseBanner}</header><div class="flow-sections"><section class="flow-section"><header class="flow-section-head"><span>01</span><h2>${tr('flowPopular')}</h2></header>${slider(popularCards, tr('flowPopular'), tr('flowNoPopular'))}</section><section class="flow-section"><header class="flow-section-head"><span>02</span><h2>${tr('flowFortunes')}</h2></header>${slider(fortuneCards, tr('flowFortunes'), '', 'flow-fortune-slider')}</section><section class="flow-section"><header class="flow-section-head"><span>03</span><h2>${tr('flowShared')}</h2></header>${slider(sharedCards, tr('flowShared'), tr('flowNoShared'))}</section><section class="flow-section"><header class="flow-section-head"><span>04</span><h2>${tr('flowRecent')}</h2></header>${slider(recentPoetCards, tr('flowRecent'), tr('flowNoRecent'))}</section></div></section>`;
+          return `<section class="page flow-page"><header class="flow-page-head">${verseBanner}</header><div class="flow-sections"><section class="flow-section"><header class="flow-section-head"><h2>${tr('flowFortunes')}</h2></header>${slider(fortuneCards, tr('flowFortunes'), '', 'flow-fortune-slider')}</section><section class="flow-section"><header class="flow-section-head"><h2>${tr('flowPopular')}</h2></header>${slider(popularCards, tr('flowPopular'), tr('flowNoPopular'))}</section><section class="flow-section"><header class="flow-section-head"><h2>${tr('flowFavorites')}</h2></header>${slider(favoriteCards, tr('flowFavorites'), tr('flowNoPopular'))}</section>${isAuthenticated() ? `<section class="flow-section"><header class="flow-section-head"><h2>${tr('flowYourTrail')}</h2></header>${slider(trailCards, tr('flowYourTrail'), tr('empty'))}</section>` : ''}<section class="flow-section"><header class="flow-section-head"><h2>${tr('flowShared')}</h2></header>${slider(sharedCards, tr('flowShared'), tr('flowNoShared'))}</section><section class="flow-section"><header class="flow-section-head"><h2>${tr('flowRecent')}</h2></header>${slider(recentPoetCards, tr('flowRecent'), tr('flowNoRecent'))}</section></div></section>`;
       };
 
      const settingsViewNext = () => {
@@ -1716,7 +1786,7 @@
        const poemFonts = `<div class="setting-options poem-font-options"><button class="${poemFont === 'ravi' ? 'active' : ''}" data-poem-font="ravi">Ravi</button><button class="${poemFont === 'iran-nastaliq' ? 'active' : ''}" data-poem-font="iran-nastaliq">${tr('iranNastaliq')}</button><button class="${poemFont === 'shekasteh' ? 'active' : ''}" data-poem-font="shekasteh">${tr('shekastehNastaliq')}</button><button class="${poemFont === 'mir-emad' ? 'active' : ''}" data-poem-font="mir-emad">${tr('mirEmad')}</button></div>`;
        const fonts = `<div class="font-sections"><section class="font-section"><h4>${tr('appFont')}</h4>${appFonts}</section><section class="font-section"><h4>${tr('poemFont')}</h4>${poemFonts}</section></div>`;
        const size = `<div class="setting-options scale-options"><button class="${uiScale === 'smaller' ? 'active' : ''}" data-ui-scale="smaller">${tr('smaller')}</button><button class="${uiScale === 'default' ? 'active' : ''}" data-ui-scale="default">${tr('defaultSize')}</button><button class="${uiScale === 'large' ? 'active' : ''}" data-ui-scale="large">${tr('large')}</button><button class="${uiScale === 'larger' ? 'active' : ''}" data-ui-scale="larger">${tr('larger')}</button></div>`;
-          return `<section class="page"><div class="page-hero"><h1>${tr('settings')}</h1></div><div class="settings-grid">${setting(tr('language'), lang === 'fa' ? 'فارسی / English' : 'Persian / English', language)}${setting(tr('theme'), lang === 'fa' ? 'روشن، کاغذی، تیره یا هماهنگ با تنظیمات سیستم.' : 'Light, paper, dark or your system preference.', themes)}${setting(tr('font'), lang === 'fa' ? 'انتخاب فونت رابط و شعر' : 'Choose interface and poem fonts', fonts)}${setting(tr('size'), lang === 'fa' ? 'فقط اندازهٔ نوشته‌ها را تغییر می‌دهد.' : 'Changes text size without scaling the controls.', size)}${setting(tr('appVersion'), lang === 'fa' ? APP_VERSION_FA : APP_VERSION, `<a class="button secondary" href="mailto:feedback@jaryan.app">${lang === 'fa' ? 'ارسال نظر' : 'Send feedback'}</a>`, 'setting-help')}</div></section>`;
+             return `<section class="page settings-page"><div class="page-hero"><h1>${tr('settings')}</h1></div><div class="settings-grid">${setting(tr('language'), lang === 'fa' ? 'فارسی / English' : 'Persian / English', language)}${setting(tr('theme'), lang === 'fa' ? 'روشن، کاغذی، تیره یا هماهنگ با تنظیمات سیستم.' : 'Light, paper, dark or your system preference.', themes)}${setting(tr('font'), lang === 'fa' ? 'انتخاب فونت رابط و شعر' : 'Choose interface and poem fonts', fonts)}${setting(tr('size'), lang === 'fa' ? 'فقط اندازهٔ نوشته‌ها را تغییر می‌دهد.' : 'Changes text size without scaling the controls.', size)}${setting(tr('appVersion'), lang === 'fa' ? APP_VERSION_FA : APP_VERSION, `<a class="button secondary" href="mailto:feedback@jaryan.app">${lang === 'fa' ? 'ارسال نظر' : 'Send feedback'}</a>`, 'setting-help')}</div><div class="settings-update"><details class="settings-update-disclosure" ${state.settingsUpdateOpen ? 'open' : ''}><summary class="settings-update-toggle"><span class="settings-update-icon">${icon('refresh')}</span><strong>${tr('accountUpdate')}</strong><span class="settings-update-hint">${lang === 'fa' ? 'بررسی نسخه' : 'Check version'}</span></summary><div class="settings-update-content">${accountUpdateV6()}</div></details></div></section>`;
     };
 
     const accountSettingsView = () => {
@@ -1781,8 +1851,24 @@
         const poetShelf = savedPoets.length ? shelf('user', tr('favoritePoets'), savedPoets, visible => `<div class="favorite-library-list">${visible.map(person => `<article class="favorite-library-row glass" data-poet="${escapeHTML(person.i)}"><span class="favorite-library-mark">${icon('user')}</span><span><strong>${escapeHTML(poetName(person))}</strong><small>${escapeHTML(lang === 'fa' ? blurbs[person.i] || '' : blurbsEn[person.i] || '')}</small></span><b>${tr('nextArrow')}</b></article>`).join('')}</div>`, 'poets') : '';
         return `<section class="account-section-v6 favorites-library-v6"><div class="section-head"><div class="account-section-heading"><h2><span class="section-icon favorite-icon">${icon('heart')}</span><span>${tr('favoriteLibraryTitle')}</span></h2><p>${tr('favoriteLibraryCopy')}</p></div><strong class="favorite-total">${fa(totalSaved)}</strong></div><div class="favorite-library-summary"><div><strong>${fa(savedPoems.length)}</strong><span>${tr('favoritePoemCount')}</span></div><div><strong>${fa(savedCouplets.length)}</strong><span>${tr('favoriteVerseCount')}</span></div><div><strong>${fa(savedPoets.length)}</strong><span>${tr('favoritePoetCount')}</span></div></div>${poemShelf}${verseShelf}${poetShelf}</section>`;
       };
-      const accountProfileV6 = user => `<div class="account-profile-v6"><section class="account-section-v6 profile-v6-card"><div class="section-head"><div class="account-section-heading"><h2><span class="section-icon profile-icon">${icon('user')}</span><span>${tr('accountProfileShort')}</span></h2></div></div><div class="account-form-grid account-form-grid-v6"><label>${tr('name')}<input class="field" id="account-display-name" value="${escapeHTML(user.displayName || user.name || profile)}" maxlength="80"></label><label>${tr('username')}<input class="field readonly-field" id="account-username" value="${escapeHTML(account.username)}" readonly aria-describedby="username-help"><small id="username-help" class="field-hint">${tr('usernameReadOnly')}</small></label><label>${tr('email')}<input class="field" id="account-email" type="email" value="${escapeHTML(user.email || '')}" placeholder="${tr('emailPlaceholder')}"></label><label>${tr('mobile')}<input class="field" id="account-mobile" type="tel" value="${escapeHTML(user.mobile || '')}" placeholder="${tr('mobilePlaceholder')}"></label></div><button class="button account-save-button" data-save-account>${tr('saveChanges')}</button></section><section class="account-security-v6 glass"><div class="account-section-heading"><h2><span class="section-icon security-icon">${icon('settings')}</span><span>${tr('accountSecurity')}</span></h2><p>${tr('accountSecurityHint')}</p></div><div class="account-security-actions"><button class="button secondary" data-forgot-password>${tr('forgotPassword')}</button><button class="button danger-button" data-logout>${tr('accountLogout')}</button></div></section></div>`;
-      const accountStatsV6 = () => {
+      const jalaliCalendarMarkup = () => {
+        const { year, month } = state.jalaliPicker;
+        const dates = jalaliMonthDates(year, month);
+        const locale = lang === 'fa' ? 'fa-IR-u-ca-persian' : 'en-US-u-ca-persian';
+        const monthTitle = dates.length ? new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', timeZone: 'UTC' }).format(dates[0]) : `${year}/${month}`;
+        const weekdays = Array.from({ length: 7 }, (_, index) => new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(new Date(Date.UTC(2024, 0, 6 + index))));
+        const emptyDays = dates.length ? (dates[0].getUTCDay() + 1) % 7 : 0;
+        const selected = jalaliDateValue(document.getElementById('account-birth-date')?.value || '');
+        const cells = `${Array.from({ length: emptyDays }, () => '<span class="jalali-calendar-empty"></span>').join('')}${dates.map(date => {
+          const parts = jalaliParts(date);
+          const value = `${parts.year}/${parts.month}/${parts.day}`;
+          return `<button type="button" class="jalali-calendar-day ${value === selected ? 'selected' : ''}" data-jalali-day="${value}">${fa(Number(parts.day))}</button>`;
+        }).join('')}`;
+        return `<div class="jalali-calendar-head"><button type="button" data-jalali-month="-1" aria-label="${lang === 'fa' ? 'ماه پیش' : 'Previous month'}">‹</button><strong>${monthTitle}</strong><button type="button" data-jalali-month="1" aria-label="${lang === 'fa' ? 'ماه بعد' : 'Next month'}">›</button></div><div class="jalali-calendar-grid jalali-weekdays">${weekdays.map(day => `<span>${day}</span>`).join('')}</div><div class="jalali-calendar-grid">${cells}</div>`;
+      };
+      const accountProfileV6 = user => `<div class="account-profile-v6"><details class="account-section-v6 profile-v6-card profile-fold-card"><summary class="profile-fold-summary"><span class="section-icon profile-icon">${icon('user')}</span><span><strong>${tr('accountProfileShort')}</strong><small>${tr('accountIntro')}</small></span></summary><div class="profile-fold-body"><div class="account-form-grid account-form-grid-v6"><label class="floating-field" for="account-display-name"><input class="field" id="account-display-name" value="${escapeHTML(user.displayName || user.name || profile)}" maxlength="80" placeholder=" "><span>${tr('name')}</span></label><div class="profile-readonly-field"><label class="floating-field" for="account-username"><input class="field readonly-field" id="account-username" value="${escapeHTML(account.username)}" readonly aria-describedby="username-help" placeholder=" "><span>${tr('username')}</span></label><small id="username-help" class="field-hint">${tr('usernameReadOnly')}</small></div><label class="floating-field" for="account-email"><input class="field" id="account-email" type="email" value="${escapeHTML(user.email || '')}" placeholder=" "><span>${tr('email')}</span></label><label class="floating-field" for="account-mobile"><input class="field" id="account-mobile" type="tel" value="${escapeHTML(user.mobile || '')}" placeholder=" "><span>${tr('mobile')}</span></label><div class="date-field-wrap"><label class="floating-field" for="account-birth-date"><input class="field jalali-date" id="account-birth-date" type="text" inputmode="numeric" dir="ltr" placeholder=" " value="${escapeHTML(jalaliDateValue(user.birthDate || ''))}"><span>${tr('birthDate')}</span></label><button type="button" class="jalali-calendar-trigger" data-open-jalali aria-label="${tr('birthDate')}" aria-expanded="false">${icon('calendar')}</button><div class="jalali-calendar" data-jalali-calendar hidden></div></div></div><p class="profile-consent-context">${tr('localSyncNote')}</p><button class="button account-save-button" data-save-account>${tr('saveChanges')}</button></div></details><details class="account-security-v6 glass profile-fold-card"><summary class="profile-fold-summary"><span class="section-icon security-icon">${icon('settings')}</span><span><strong>${tr('accountSecurity')}</strong><small>${tr('accountSecurityHint')}</small></span></summary><div class="profile-fold-body"><div class="account-form-grid account-form-grid-v6"><label class="floating-field" for="account-current-password"><input class="field" id="account-current-password" type="password" autocomplete="current-password" placeholder=" "><span>${tr('currentPassword')}</span></label><label class="floating-field" for="account-new-username"><input class="field" id="account-new-username" minlength="3" maxlength="60" autocomplete="username" placeholder=" "><span>${tr('newUsername')}</span></label><label class="floating-field" for="account-new-password"><input class="field" id="account-new-password" type="password" minlength="5" maxlength="120" autocomplete="new-password" placeholder=" "><span>${tr('newPassword')}</span></label></div><div class="account-security-actions"><button class="button secondary" data-forgot-password>${tr('forgotPassword')}</button><button class="button danger-button" data-logout>${tr('accountLogout')}</button></div></div></details></div>`;
+       const accountCredentialsV6 = () => `<details class="account-section-v6 security-card account-credentials-card"><summary class="profile-fold-summary"><span class="section-icon update-icon">${icon('settings')}</span><span><strong>${tr('changeCredentials')}</strong><small>${tr('credentialsHint')}</small></span></summary><div class="profile-fold-body"><div class="account-form-grid account-form-grid-v6"><label class="floating-field" for="account-current-password"><input class="field" id="account-current-password" type="password" autocomplete="current-password" placeholder=" "><span>${tr('currentPassword')}</span></label><label class="floating-field" for="account-new-username"><input class="field" id="account-new-username" minlength="3" maxlength="60" autocomplete="username" placeholder=" "><span>${tr('newUsername')}</span></label><label class="floating-field" for="account-new-password"><input class="field" id="account-new-password" type="password" minlength="5" maxlength="120" autocomplete="new-password" placeholder=" "><span>${tr('newPassword')}</span></label></div><button class="button secondary" data-save-credentials>${tr('changeCredentials')}</button></div></details>`;
+       const accountStatsV6 = () => {
         const todayCount = readingHistory.filter(item => new Date(item.at).toDateString() === new Date().toDateString()).length;
         const monthCount = readingHistory.filter(item => { const date = new Date(item.at); const now = new Date(); return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth(); }).length;
         const recentAll = readingHistory.slice().sort((a, b) => b.at - a.at).map(item => poems.find(poem => idOf(poem) === item.id)).filter(Boolean);
@@ -1804,15 +1890,17 @@
          if (isAdminAccount()) return adminServerView();
         const user = currentUserRecord() || account;
           const tabs = [['profile', tr('accountProfileShort'), 'user'], ['notes', tr('accountNotes'), 'note'], ['favorites', tr('accountFavorites'), 'heart'], ['stats', tr('accountStats'), 'chart'], ['offline', tr('offlinePoems'), 'download'], ['update', tr('accountUpdate'), 'refresh']];
-          const content = state.accountTab === 'profile' ? accountProfileV6(user) : state.accountTab === 'favorites' ? accountFavoritesV6() : state.accountTab === 'stats' ? accountStatsV6() : state.accountTab === 'offline' ? accountOfflineV65() : state.accountTab === 'update' ? accountUpdateV6() : accountNotesV6();
+           const content = state.accountTab === 'profile' ? `${accountProfileV6(user)}${accountCredentialsV6()}` : state.accountTab === 'favorites' ? accountFavoritesV6() : state.accountTab === 'stats' ? accountStatsV6() : state.accountTab === 'offline' ? accountOfflineV65() : state.accountTab === 'update' ? accountUpdateV6() : accountNotesV6();
          const displayName = user.displayName || user.name || account.username;
          const greeting = lang === 'fa' ? 'سلام! چطوری' : 'Hi! How are you';
          const punctuation = lang === 'fa' ? '،' : ',';
-         const cards = tabs.map(([key, label, iconName]) => `<button type="button" class="account-section-card glass" data-account-card="${key}"><span class="account-section-card-icon">${icon(iconName)}</span><strong>${label}</strong><span class="account-section-card-arrow" aria-hidden="true">${tr('nextArrow')}</span></button>`).join('');
+          const cards = tabs.map(([key, label, iconName]) => `<button type="button" class="account-section-card glass" data-account-card="${key}"><span class="account-section-card-icon">${icon(iconName)}</span><strong>${label}</strong><span class="account-section-card-arrow" aria-hidden="true">${tr('accountCardArrow')}</span></button>`).join('');
          const accountContent = state.accountTab === 'overview'
            ? `<div class="account-section-cards" aria-label="${escapeHTML(tr('accountOverview'))}">${cards}</div>`
            : `<section class="account-detail-v6 account-section-page" data-account-section="${state.accountTab}" aria-label="${escapeHTML(tabs.find(([key]) => key === state.accountTab)?.[1] || tr('accountOverview'))}"><button type="button" class="account-back-button" data-account-overview>${tr('backArrow')} ${tr('accountOverview')}</button><div class="account-tab-panel">${content}</div></section>`;
-         return `<section class="page account-page account-page-v6"><div class="account-dashboard-hero account-hero"><div class="account-hero-copy"><h1><span class="account-display-name">${escapeHTML(displayName)}</span><span class="account-greeting"><span>${punctuation} ${greeting}</span><span class="greeting-smile" aria-hidden="true">${icon('smile')}</span></span></h1><span class="account-identity">@${escapeHTML(account.username)}</span></div></div>${accountDailyFortuneView()}${accountContent}</section>`;
+          const isOverview = state.accountTab === 'overview';
+          const overviewHero = isOverview ? `<div class="account-dashboard-hero account-hero"><div class="account-hero-copy"><h1><span class="account-display-name">${escapeHTML(displayName)}</span><span class="account-greeting"><span>${punctuation} ${greeting}</span><span class="greeting-smile" aria-hidden="true">${icon('smile')}</span></span></h1><span class="account-identity">@${escapeHTML(account.username)}</span></div></div>` : '';
+          return `<section class="page account-page account-page-v6">${overviewHero}${isOverview ? accountDailyFortuneView() : ''}${accountContent}</section>`;
       };
 
    const animateCounters = () => {
@@ -1881,7 +1969,7 @@
       }
       if (token !== renderToken) return;
     }
-    main.innerHTML = state.page === 'home' || state.page === 'poets' ? homeView()
+      main.innerHTML = state.page === 'home' || state.page === 'poets' ? homeView()
       : state.page === 'poet' ? poetView()
         : state.page === 'book' ? bookView()
           : state.page === 'poem' ? poemView()
@@ -1889,19 +1977,16 @@
       : state.page === 'flow' ? flowView()
       : state.page === 'account' ? accountViewV5()
       : state.page === 'not-found' ? notFoundView() : settingsViewNext();
-      if (state.page === 'account' && !isAuthenticated() && state.authMode === 'register' && !main.querySelector('#auth-consent')) {
-        main.querySelector('.remember-line')?.insertAdjacentHTML('afterend', `<label class="consent-line auth-consent"><input type="checkbox" id="auth-consent"><span>${tr('accountDataConsent')}</span></label>`);
-      }
-      if (state.page === 'account' && isAuthenticated() && !isAdminAccount()) {
-        const user = currentUserRecord() || account;
-        const profileGrid = main.querySelector('.profile-v6-card .account-form-grid-v6');
-        if (profileGrid && !profileGrid.querySelector('#account-birth-date')) {
-          profileGrid.insertAdjacentHTML('beforeend', `<label>${tr('birthDate')}<input class="field jalali-date" id="account-birth-date" type="text" inputmode="numeric" dir="ltr" placeholder="۱۴۰۵/۰۱/۰۱" value="${escapeHTML(jalaliDateValue(user.birthDate || ''))}"><small class="field-hint">${tr('jalaliDateHint')}</small></label>`);
+      if (state.page === 'account' && !isAuthenticated() && state.authMode === 'register') {
+        const form = main.querySelector('.auth-form');
+        const captchaRow = form?.querySelector('.auth-captcha-row');
+        if (form && captchaRow && !form.querySelector('#auth-consent')) {
+          captchaRow.insertAdjacentHTML('beforebegin', `<label class="consent-line auth-consent"><input type="checkbox" id="auth-consent"><span>${tr('authConsent')}</span></label>`);
         }
-        if (!user.consentAt && !main.querySelector('#profile-consent')) {
-          main.querySelector('.profile-v6-card [data-save-account]')?.insertAdjacentHTML('beforebegin', `<label class="consent-line"><input type="checkbox" id="profile-consent"><span>${tr('accountDataConsent')}</span></label>`);
-        }
+        const equation = form?.querySelector('.auth-captcha-equation');
+        if (equation) equation.textContent = state.authCaptchaQuestion || '';
       }
+      if (state.page === 'settings' && state.update.status === 'idle') checkForUpdates();
       if (state.page === 'poem' && state.active) {
         const poemTools = main.querySelector('.poem-tools');
         if (poemTools && !poemTools.querySelector('[data-offline-poem]')) {
@@ -1917,6 +2002,7 @@
         state.flowLoading = true;
         serverRequest('/flow', undefined, 'GET').then(async data => {
           state.flowPopular = Array.isArray(data.popular) ? data.popular : [];
+          state.flowFavorites = Array.isArray(data.popularFavorites) ? data.popularFavorites : [];
           state.flowPopularPoets = Array.isArray(data.popularPoets) ? data.popularPoets : [];
           state.flowSharedPoets = Array.isArray(data.sharedPoets) ? data.sharedPoets : [];
           state.flowSharedPoems = Array.isArray(data.sharedPoems) ? data.sharedPoems : [];
@@ -1993,21 +2079,92 @@
      }
   };
 
-   document.addEventListener('input', event => {
-    if (event.target.matches('#home-search, #archive-search')) handleSearchInput(event.target);
-   });
+       let usernameCheckToken = 0;
+       const usernameAvailableOnServer = async username => {
+         if (!validUsername(username) || usernameKey(username) === ADMIN_USERNAME) return false;
+         const result = await serverRequest(`/auth/username-availability?username=${encodeURIComponent(username)}`, undefined, 'GET');
+         return Boolean(result.available);
+       };
+       document.addEventListener('input', event => {
+        const target = event.target;
+        if (target.matches('#home-search, #archive-search')) handleSearchInput(target);
+        if (target.id === 'auth-username' && state.authMode === 'register') {
+          const status = document.querySelector('[data-auth-username-status]');
+          if (!status) return;
+           const username = target.value.trim();
+           const token = ++usernameCheckToken;
+           if (!validUsername(username)) {
+             status.textContent = username ? tr('usernameFormat') : '';
+             status.classList.remove('available');
+             status.classList.toggle('taken', Boolean(username));
+             status.setAttribute('aria-label', username ? tr('usernameFormat') : '');
+             if (username) target.setAttribute('aria-invalid', 'true');
+             else target.removeAttribute('aria-invalid');
+             return;
+           }
+           status.textContent = '…';
+           status.classList.remove('available', 'taken');
+           usernameAvailableOnServer(username).then(available => {
+             if (token !== usernameCheckToken || target.value.trim() !== username) return;
+             status.textContent = available ? '✓' : '×';
+             status.classList.toggle('available', available);
+             status.classList.toggle('taken', !available);
+             status.setAttribute('aria-label', available ? tr('usernameAvailable') : tr('usernameTaken'));
+             if (available) target.removeAttribute('aria-invalid');
+             else target.setAttribute('aria-invalid', 'true');
+           }).catch(() => {
+             if (token !== usernameCheckToken) return;
+             status.textContent = '';
+             status.setAttribute('aria-label', '');
+           });
+        }
+      });
   document.addEventListener('change', event => {
      if (event.target.id === 'archive-poet') { state.poet = event.target.value; state.book = 'همه'; state.limit = 24; state.searchCommitted = false; state.searchError = false; render().then(() => { if (normalize(state.query)) commitSearch(state.query, ++searchRun); }); }
      if (event.target.id === 'archive-book') { state.book = event.target.value; state.limit = 24; state.searchCommitted = false; state.searchError = false; render().then(() => { if (normalize(state.query)) commitSearch(state.query, ++searchRun); }); }
   });
-    document.addEventListener('click', async event => {
-     const target = event.target;
-     if (flowSliderClickSuppress && event.detail > 0 && target.closest('.flow-slider') === flowSliderClickSuppress.slider && performance.now() <= flowSliderClickSuppress.until) {
+      document.addEventListener('click', async event => {
+       const target = event.target;
+       const settingsUpdateToggle = target.closest('.settings-update-toggle');
+       if (settingsUpdateToggle) state.settingsUpdateOpen = !settingsUpdateToggle.parentElement.open;
+      if (flowSliderClickSuppress && event.detail > 0 && target.closest('.flow-slider') === flowSliderClickSuppress.slider && performance.now() <= flowSliderClickSuppress.until) {
        flowSliderClickSuppress = null;
        event.preventDefault();
        return;
      }
-     if (target.id === 'modal-backdrop' || target.closest('[data-close-modal]')) { closeModal(); return; }
+      if (target.id === 'modal-backdrop' || target.closest('[data-close-modal]')) { closeModal(); return; }
+      const jalaliTrigger = target.closest('[data-open-jalali]');
+      if (jalaliTrigger) {
+        const value = jalaliDateValue(document.getElementById('account-birth-date')?.value || '').match(/^(\d{4})\/(\d{2})\/(\d{2})$/);
+        state.jalaliPicker = value ? { year: Number(value[1]), month: Number(value[2]) } : { year: Number(currentJalali.year), month: Number(currentJalali.month) };
+        const calendar = jalaliTrigger.parentElement.querySelector('[data-jalali-calendar]');
+        calendar.innerHTML = jalaliCalendarMarkup();
+        calendar.style.top = '';
+        calendar.style.bottom = '';
+        calendar.hidden = false;
+        jalaliTrigger.setAttribute('aria-expanded', 'true');
+        const calendarRect = calendar.getBoundingClientRect();
+        if (calendarRect.bottom > innerHeight - 72 && calendarRect.top > calendarRect.height + 12) {
+          calendar.style.top = 'auto';
+          calendar.style.bottom = 'calc(100% + 8px)';
+        }
+        return;
+      }
+      const jalaliMonth = target.closest('[data-jalali-month]');
+      if (jalaliMonth) {
+        const monthIndex = state.jalaliPicker.year * 12 + state.jalaliPicker.month - 1 + Number(jalaliMonth.dataset.jalaliMonth);
+        state.jalaliPicker = { year: Math.floor(monthIndex / 12), month: ((monthIndex % 12) + 12) % 12 + 1 };
+        const calendar = jalaliMonth.closest('[data-jalali-calendar]');
+        calendar.innerHTML = jalaliCalendarMarkup();
+        return;
+      }
+      const jalaliDay = target.closest('[data-jalali-day]');
+      if (jalaliDay) {
+        document.getElementById('account-birth-date').value = jalaliDay.dataset.jalaliDay;
+        jalaliDay.closest('[data-jalali-calendar]').hidden = true;
+        document.querySelector('[data-open-jalali]')?.setAttribute('aria-expanded', 'false');
+        return;
+      }
     const clearInput = target.closest('[data-clear-input]');
     if (clearInput) {
       const input = document.getElementById(clearInput.dataset.clearInput);
@@ -2019,13 +2176,13 @@
       return;
     }
      const favorite = target.closest('[data-fav]');
-     if (favorite) { toggleSet(favorites, favorite.dataset.fav, 'jaryan-favorites'); saveUserData(); render(); showToast(favorites.has(favorite.dataset.fav) ? tr('savedToast') : tr('removedToast')); return; }
+      if (favorite) { const id = favorite.dataset.fav; toggleSet(favorites, id, 'jaryan-favorites'); syncFavorite('poem', id, favorites.has(id)); saveUserData(); render(); showToast(favorites.has(id) ? tr('savedToast') : tr('removedToast')); return; }
     const coupletFavorite = target.closest('[data-couplet-fav]');
-     if (coupletFavorite) { toggleSet(coupletFavorites, coupletFavorite.dataset.coupletFav, 'jaryan-couplet-favorites'); saveUserData(); render(); showToast(coupletFavorites.has(coupletFavorite.dataset.coupletFav) ? tr('savedToast') : tr('removedToast')); return; }
+      if (coupletFavorite) { const id = coupletFavorite.dataset.coupletFav; toggleSet(coupletFavorites, id, 'jaryan-couplet-favorites'); syncFavorite('couplet', id, coupletFavorites.has(id)); saveUserData(); render(); showToast(coupletFavorites.has(id) ? tr('savedToast') : tr('removedToast')); return; }
      const poetFavorite = target.closest('[data-poet-fav]');
-     if (poetFavorite) { toggleSet(poetFavorites, poetFavorite.dataset.poetFav, 'jaryan-poet-favorites'); saveUserData(); render(); showToast(poetFavorites.has(poetFavorite.dataset.poetFav) ? tr('poetSavedToast') : tr('removedToast')); return; }
+      if (poetFavorite) { const id = poetFavorite.dataset.poetFav; toggleSet(poetFavorites, id, 'jaryan-poet-favorites'); syncFavorite('poet', id, poetFavorites.has(id)); saveUserData(); render(); showToast(poetFavorites.has(id) ? tr('poetSavedToast') : tr('removedToast')); return; }
      const bookFavorite = target.closest('[data-book-fav]');
-     if (bookFavorite) { toggleSet(bookFavorites, bookFavorite.dataset.bookFav, 'jaryan-book-favorites'); saveUserData(); render(); showToast(bookFavorites.has(bookFavorite.dataset.bookFav) ? tr('bookSavedToast') : tr('removedToast')); return; }
+      if (bookFavorite) { const id = bookFavorite.dataset.bookFav; toggleSet(bookFavorites, id, 'jaryan-book-favorites'); syncFavorite('book', id, bookFavorites.has(id)); saveUserData(); render(); showToast(bookFavorites.has(id) ? tr('bookSavedToast') : tr('removedToast')); return; }
     const note = target.closest('[data-couplet-note]');
     if (note) { openNoteEditor(note.dataset.coupletNote); return; }
     const noteSave = target.closest('[data-save-couplet-note]');
@@ -2069,59 +2226,83 @@
       if (favoriteTab) { state.favoriteTab = favoriteTab.dataset.favoriteTab; render(); return; }
        const accountTab = target.closest('[data-account-tab]');
        if (accountTab) { state.accountTab = accountTab.dataset.accountTab; render().then(() => { if (state.accountTab === 'update') checkForUpdates(); }); return; }
-      if (target.closest('[data-clear-history]')) { readingHistory = []; localStorage.removeItem('jaryan-history'); saveUserData(); render(); showToast(tr('historyCleared')); return; }
-      const authMode = target.closest('[data-auth-mode]');
-      if (authMode) { state.authMode = authMode.dataset.authMode === 'register' ? 'register' : 'login'; render(); return; }
-      const authSubmit = target.closest('[data-auth-submit]');
-      if (authSubmit) {
-        const username = document.getElementById('auth-username')?.value.trim() || '';
-        const password = document.getElementById('auth-password')?.value || '';
-        const remember = Boolean(document.getElementById('auth-remember')?.checked);
-        const consent = Boolean(document.getElementById('auth-consent')?.checked);
-        const mode = state.authMode;
-        if (!username) { showToast(tr('usernameRequired')); return; }
-        if (Array.from(username).length < 3) { showToast(tr('usernameShort')); return; }
-        if (!password) { showToast(tr('passwordRequired')); return; }
-        if (Array.from(password).length < 5) { showToast(tr('passwordShort')); return; }
-        authSubmit.disabled = true;
-        (async () => {
-          try {
-            const key = usernameKey(username);
-            const passwordHash = await hashSecret(password);
-            if (mode === 'register') {
-              if (!consent) throw new Error(tr('consentRequired'));
-              if (key === ADMIN_USERNAME || authUsers[key]) throw new Error(tr('usernameTaken'));
-              const now = new Date().toISOString();
-              authUsers[key] = { localId: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`, username, displayName: username, email: '', mobile: '', birthDate: '', consentAt: now, passwordHash, role: 'user', createdAt: now, updatedAt: now, lastSeenAt: now };
-              saveAuthUsers();
-              account = { name: username, displayName: username, email: '', mobile: '', birthDate: '', username, localId: authUsers[key].localId, consentAt: now, role: 'user', loggedIn: true };
-              profile = username;
-              await syncAccountToServer(authUsers[key]).catch(() => false);
-            } else if (key === ADMIN_USERNAME) {
-              const result = await serverRequest('/admin/login', { password });
-              if (!result.authenticated) throw new Error(tr('invalidCredentials'));
-              adminSession = true;
-              state.adminData = null;
-              state.adminError = '';
-              account = { name: 'ادمین', displayName: 'ادمین', email: '', mobile: '', birthDate: '', username: ADMIN_USERNAME, role: 'admin', loggedIn: true };
-              profile = 'ادمین';
-            } else {
-              const user = authUsers[key];
-              if (!user || user.passwordHash !== passwordHash) throw new Error(tr('invalidCredentials'));
-              const now = new Date().toISOString();
-              const localId = user.localId || (user.consentAt ? globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}` : '');
-              authUsers[key] = { ...user, localId, lastSeenAt: now, updatedAt: now };
-              account = { name: user.displayName || user.username, displayName: user.displayName || user.username, email: user.email || '', mobile: user.mobile || '', birthDate: user.birthDate || '', username: user.username, localId, remoteId: user.remoteId || '', consentAt: user.consentAt || '', role: 'user', loggedIn: true };
-              profile = account.name;
-              saveAuthUsers();
-              await syncAccountToServer(authUsers[key]).catch(() => false);
-            }
-            if (remember && key !== ADMIN_USERNAME) rememberLogin(username, passwordHash);
-            else clearRememberedLogin();
-            saveUserData();
-            layout();
-            render();
-            showToast(mode === 'register' ? tr('registerSuccess') : tr('loginSuccess'));
+       if (target.closest('[data-clear-history]')) {
+         try {
+           if (isAuthenticated() && !isAdminAccount()) await serverRequest('/auth/history/clear', {});
+           readingHistory = [];
+           localStorage.removeItem('jaryan-history');
+           saveUserData();
+           render();
+           showToast(tr('historyCleared'));
+         } catch (error) { showToast(error.message || tr('adminSyncError'), 'error'); }
+         return;
+       }
+       const authMode = target.closest('[data-auth-mode]');
+       if (authMode) { state.authMode = authMode.dataset.authMode === 'register' ? 'register' : 'login'; render(); return; }
+       const passwordToggle = target.closest('[data-toggle-auth-password]');
+       if (passwordToggle) {
+         const passwordInput = document.getElementById('auth-password');
+         if (!passwordInput) return;
+         const showPassword = passwordInput.type === 'password';
+         passwordInput.type = showPassword ? 'text' : 'password';
+         passwordToggle.classList.toggle('is-visible', showPassword);
+         passwordToggle.setAttribute('aria-pressed', String(showPassword));
+         passwordToggle.setAttribute('aria-label', showPassword ? tr('hidePassword') : tr('showPassword'));
+         passwordToggle.setAttribute('title', showPassword ? tr('hidePassword') : tr('showPassword'));
+         return;
+       }
+        const authSubmit = target.closest('[data-auth-submit]');
+        if (authSubmit) {
+          const username = document.getElementById('auth-username')?.value.trim() || '';
+          const password = document.getElementById('auth-password')?.value || '';
+          const displayName = document.getElementById('auth-display-name')?.value.trim() || '';
+          const mobile = normalizeMobile(document.getElementById('auth-mobile')?.value.trim() || '');
+          const captcha = normalizeMobile(document.getElementById('auth-captcha')?.value || '');
+          const remember = Boolean(document.getElementById('auth-remember')?.checked);
+          const mode = state.authMode;
+          if (mode === 'register' && !displayName) { showToast(tr('displayNameRequired'), 'error'); document.getElementById('auth-display-name')?.focus(); return; }
+          if (mode === 'register' && !mobile) { showToast(tr('mobileRequired'), 'error'); document.getElementById('auth-mobile')?.focus(); return; }
+          if (mode === 'register' && !validMobile(mobile)) { showToast(tr('invalidMobile'), 'error'); document.getElementById('auth-mobile')?.focus(); return; }
+          if (!username) { showToast(tr('usernameRequired'), 'error'); return; }
+          if (!validUsername(username)) { showToast(tr('usernameFormat'), 'error'); document.getElementById('auth-username')?.focus(); return; }
+          if (!password) { showToast(tr('passwordRequired'), 'error'); return; }
+          if (Array.from(password).length < 5 || Array.from(password).length > 120) { showToast(tr('passwordShort'), 'error'); return; }
+          if (mode === 'register' && !document.getElementById('auth-consent')?.checked) { showToast(tr('authConsentRequired'), 'error'); document.getElementById('auth-consent')?.focus(); return; }
+          if (mode === 'register' && Number(captcha) !== state.authCaptchaAnswer) { showToast(tr('captchaWrong'), 'error'); document.getElementById('auth-captcha')?.focus(); return; }
+          authSubmit.disabled = true;
+          (async () => {
+            try {
+              if (mode === 'register') {
+                if (!await usernameAvailableOnServer(username)) throw new Error(tr('usernameTaken'));
+                const consentAt = new Date().toISOString();
+                const result = await serverRequest('/auth/register', {
+                  username, password, displayName, mobile, email: '', birthDate: '', consent: true, consentAt,
+                  deviceId: getDeviceId(), device: deviceInfo()
+                });
+                account = { ...result.account, name: result.account.displayName, loggedIn: true };
+                adminSession = false;
+                profile = account.name;
+                await loadServerAccountData();
+              } else {
+                const endpoint = usernameKey(username) === ADMIN_USERNAME ? '/admin/login' : '/auth/login';
+                const result = await serverRequest(endpoint, { username, password });
+                account = { ...result.account, name: result.account.displayName, loggedIn: true };
+                adminSession = result.account.role === 'admin';
+                profile = account.name || account.username;
+                if (adminSession) {
+                  state.adminData = await serverRequest('/admin/data', undefined, 'GET');
+                  state.adminError = '';
+                } else await loadServerAccountData();
+              }
+              if (remember && !isAdminAccount()) rememberLogin(username);
+              else clearRememberedLogin();
+              state.accountTab = 'overview';
+              state.authMode = 'login';
+              saveUserData();
+             layout();
+             render();
+             if (mode === 'register') showWelcome();
+             else showToast(tr('loginSuccess'));
           } catch (error) {
             showToast(error.message || tr('invalidCredentials'));
           } finally {
@@ -2134,31 +2315,26 @@
        if (target.closest('[data-apply-update]')) { applyUpdate(); return; }
        if (target.closest('[data-forgot-password]')) { openInfo(tr('forgotPassword'), tr('forgotPasswordCopy')); return; }
        const accountSave = target.closest('[data-save-account]');
-      if (accountSave && !isAdminAccount()) {
-        const key = usernameKey(account.username);
-        const user = authUsers[key];
-        if (!user) return;
-         const displayName = document.getElementById('account-display-name')?.value.trim() || user.username;
+       if (accountSave && !isAdminAccount()) {
+         const displayName = document.getElementById('account-display-name')?.value.trim() || account.username;
          const email = document.getElementById('account-email')?.value.trim() || '';
          const mobile = document.getElementById('account-mobile')?.value.trim() || '';
-          const enteredBirthDate = document.getElementById('account-birth-date')?.value ?? user.birthDate ?? '';
-          if (!validJalaliDate(enteredBirthDate)) { showToast(tr('jalaliDateHint')); return; }
-          const birthDate = jalaliDateValue(enteredBirthDate);
+         const enteredBirthDate = document.getElementById('account-birth-date')?.value ?? account.birthDate ?? '';
+         if (!validJalaliDate(enteredBirthDate)) { showToast(tr('jalaliDateHint')); return; }
          if (!validEmail(email)) { showToast(tr('invalidEmail')); return; }
          if (!validMobile(mobile)) { showToast(tr('invalidMobile')); return; }
-          const normalizedMobile = normalizeMobile(mobile);
-          const consentAt = user.consentAt || (document.getElementById('profile-consent')?.checked ? new Date().toISOString() : '');
-          const localId = user.localId || (consentAt ? globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}` : '');
-          authUsers[key] = { ...user, localId, consentAt, displayName, email, mobile: normalizedMobile, birthDate, updatedAt: new Date().toISOString() };
-          account = { ...account, localId, consentAt, name: displayName, displayName, email, mobile: normalizedMobile, birthDate };
-        profile = displayName;
-          saveAuthUsers();
-          saveUserData();
-          syncAccountToServer(authUsers[key]).catch(() => {});
-          render();
-        showToast(tr('profileSaved'));
-        return;
-      }
+         try {
+           const result = await serverRequest('/auth/profile', {
+             displayName, email, mobile: normalizeMobile(mobile), birthDate: jalaliDateValue(enteredBirthDate)
+           });
+           account = { ...result.account, name: result.account.displayName, loggedIn: true };
+           profile = account.name;
+           saveUserData();
+           render();
+           showToast(tr('profileSaved'));
+         } catch (error) { showToast(error.message || tr('adminSyncError'), 'error'); }
+         return;
+       }
       const credentialsSave = target.closest('[data-save-credentials]');
       if (credentialsSave && !isAdminAccount()) {
         credentialsSave.disabled = true;
@@ -2166,27 +2342,23 @@
           try {
             const currentPassword = document.getElementById('account-current-password')?.value || '';
             const newUsername = document.getElementById('account-new-username')?.value.trim() || '';
-            const newPassword = document.getElementById('account-new-password')?.value || '';
-            const oldKey = usernameKey(account.username);
-            const user = authUsers[oldKey];
-            if (!user || !currentPassword) throw new Error(tr('currentPassword'));
-            const currentHash = await hashSecret(currentPassword);
-            if (currentHash !== user.passwordHash) throw new Error(tr('invalidCredentials'));
-            if (!newUsername && !newPassword) throw new Error(tr('credentialsHint'));
-            if (newUsername && Array.from(newUsername).length < 3) throw new Error(tr('usernameShort'));
-            if (newPassword && Array.from(newPassword).length < 5) throw new Error(tr('passwordShort'));
-            const newKey = usernameKey(newUsername || user.username);
-            if (newKey !== oldKey && authUsers[newKey]) throw new Error(tr('usernameTaken'));
-            const updatedUser = { ...user, username: newUsername || user.username, passwordHash: newPassword ? await hashSecret(newPassword) : user.passwordHash, updatedAt: new Date().toISOString() };
-            delete authUsers[oldKey];
-            authUsers[newKey] = updatedUser;
-            account = { ...account, username: updatedUser.username };
-            saveAuthUsers();
-            const remembered = readJSON('jaryan-remembered-login', {});
-            if (remembered?.username && usernameKey(remembered.username) === oldKey) rememberLogin(updatedUser.username, updatedUser.passwordHash);
-            saveUserData();
-            render();
-            showToast(tr('credentialsSaved'));
+             const newPassword = document.getElementById('account-new-password')?.value || '';
+             const oldKey = usernameKey(account.username);
+             if (!currentPassword) throw new Error(tr('currentPassword'));
+             if (!newUsername && !newPassword) throw new Error(tr('credentialsHint'));
+             if (newUsername && !validUsername(newUsername)) throw new Error(tr('usernameFormat'));
+             if (newPassword && Array.from(newPassword).length < 5) throw new Error(tr('passwordShort'));
+             const result = await serverRequest('/auth/credentials', {
+               currentPassword, username: newUsername || account.username, password: newPassword
+             });
+             account = { ...result.account, name: result.account.displayName, loggedIn: true };
+             const remembered = readJSON('jaryan-remembered-login', {});
+             if (remembered?.username && usernameKey(remembered.username) === oldKey) rememberLogin(account.username);
+             saveUserData();
+             if (document.getElementById('account-current-password')) document.getElementById('account-current-password').value = '';
+             if (document.getElementById('account-new-password')) document.getElementById('account-new-password').value = '';
+             render();
+             showToast(tr('credentialsSaved'));
           } catch (error) {
             showToast(error.message || tr('invalidCredentials'));
           } finally {
@@ -2195,24 +2367,7 @@
         })();
         return;
       }
-      const adminUserSave = target.closest('[data-admin-save-user]');
-      if (adminUserSave && isAdminAccount()) {
-        const row = adminUserSave.closest('[data-admin-user]');
-       const key = usernameKey(row?.dataset.adminUser);
-       const user = authUsers[key];
-       if (!row || !user) return;
-       const field = name => row.querySelector(`[data-admin-field="${name}"]`)?.value.trim() || '';
-         const email = field('email');
-         const mobile = field('mobile');
-         if (!validEmail(email)) { showToast(tr('invalidEmail')); return; }
-         if (!validMobile(mobile)) { showToast(tr('invalidMobile')); return; }
-         authUsers[key] = { ...user, displayName: field('displayName') || user.username, email, mobile: normalizeMobile(mobile), birthDate: field('birthDate'), updatedAt: new Date().toISOString() };
-        saveAuthUsers();
-        render();
-         showToast(tr('adminUserSaved'));
-         return;
-       }
-       const serverMemberSave = target.closest('[data-server-member-save]');
+        const serverMemberSave = target.closest('[data-server-member-save]');
        if (serverMemberSave && isAdminAccount()) {
          const row = serverMemberSave.closest('[data-server-member]');
          const field = name => row?.querySelector(`[data-server-field="${name}"]`)?.value.trim() || '';
@@ -2255,8 +2410,8 @@
         });
         return;
       }
-       if (target.closest('[data-logout]')) {
-         if (isAdminAccount()) await serverRequest('/admin/logout', {}).catch(() => {});
+        if (target.closest('[data-logout]')) {
+          await serverRequest('/auth/logout', {}).catch(() => {});
          adminSession = false;
          state.adminData = null;
          profile = '';
@@ -2352,9 +2507,14 @@
   };
   window.addEventListener('popstate', renderFromHistory);
   window.addEventListener('hashchange', renderFromHistory);
-   document.addEventListener('pointerdown', event => {
-     const fab = document.querySelector('.poem-fab');
-     if (fab?.classList.contains('open') && !fab.contains(event.target)) closeFab();
+    document.addEventListener('pointerdown', event => {
+      const fab = document.querySelector('.poem-fab');
+      if (fab?.classList.contains('open') && !fab.contains(event.target)) closeFab();
+      const calendar = document.querySelector('.jalali-calendar:not([hidden])');
+      if (calendar && !event.target.closest('.date-field-wrap')) {
+        calendar.hidden = true;
+        document.querySelector('[data-open-jalali]')?.setAttribute('aria-expanded', 'false');
+      }
    });
      document.addEventListener('keydown', event => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); document.querySelector('#home-search, #archive-search')?.focus(); }
@@ -2371,10 +2531,12 @@
         }
         return;
       }
-      if (event.key === 'Escape') {
-        const wasModalOpen = Boolean(modal);
-        closeModal();
-        closeFab();
+       if (event.key === 'Escape') {
+         const wasModalOpen = Boolean(modal);
+         closeModal();
+         closeFab();
+         const calendar = document.querySelector('.jalali-calendar:not([hidden])');
+         if (calendar) { calendar.hidden = true; document.querySelector('[data-open-jalali]')?.setAttribute('aria-expanded', 'false'); }
         if (document.documentElement.classList.contains('focus-mode')) setFocusMode(false);
         else if (!wasModalOpen) document.querySelector('[data-poem-fab]')?.focus();
       }
@@ -2446,5 +2608,5 @@
    if (document.fonts?.ready) await document.fonts.ready;
    await render();
    await finishSplash();
-          if ('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js?v=0.6.5').catch(() => {});
+          if ('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js?v=0.7.0').catch(() => {});
  })();
